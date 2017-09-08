@@ -1,0 +1,8 @@
+*.pyc
+container/*.pyc
+shipper/*.pyc
+shore/*.pyc
+shore/migrations/*.pyc
+shore/migrations/*.py
+db.sqlite3
+

@@ -1,0 +1,266 @@
+from django.shortcuts import render,render_to_response
+
+# Create your views here.
+from .forms import UploadFileForm
+from .models import (FileType,Container)
+import django_excel as excel
+import xlrd
+import re
+
+# Create your views here.
+def upload(request):
+    if request.method == "POST":
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            filehandle = request.FILES['file']
+            book = xlrd.open_workbook(file_contents=filehandle.read())
+            # return excel.make_response(filehandle.get_sheet(), "csv",
+            #                            file_name="download")
+    else:
+        form = UploadFileForm()
+    return render(
+        request,
+        'upload_form.html',
+        {
+            'form': form,
+            'title': 'Excel file upload and download example',
+            'header': ('Please choose any excel file ' +
+                       'from your cloned repository:')
+        })
+
+def import_data(request):
+	if request.method == "POST":
+		form = UploadFileForm(request.POST,
+		request.FILES)
+		if form.is_valid():
+			filehandle =request.FILES['file']
+			book = xlrd.open_workbook(file_contents=filehandle.read())
+			# sheet_names = book.sheet_names()
+			# print (sheet_names)
+			xl_sheet = book.sheet_by_index(0)
+			print ('Sheet name: %s' % xl_sheet.name)
+			print ('Total row %s' % xl_sheet.nrows )
+			print ('Total col %s' % xl_sheet.ncols)
+
+			#Find First row in sheet
+			# get Shore File Type
+			fileTypeIn = form.cleaned_data['filetype']
+			obj = FileType.objects.get(name=fileTypeIn)
+			if obj:
+				print ('-----Using File Type Configuration---')
+				headerContainerToCheck = [obj.container_col]
+				headerBookingToCheck = [obj.booking_col]
+				headerVoyToCheck =[obj.voy_col]
+				headerPodToCheck = [obj.pod_col]
+				headerShipperToCheck = [obj.shipper_col]
+				headerVesselToCheck = [obj.vessel_col]
+				headerTypeToCheck = [obj.container_type_col]
+				headerSizeToCheck = [obj.container_size_col]
+				headerHighToCheck = [obj.container_high_col]
+				headerTermToCheck = [obj.payment_col]
+				headerUnnoToCheck = [obj.unno_col]
+				headerDGclassToCheck = [obj.dgclass_col]
+				headerTempToCheck = [obj.temp_col]
+				headerLineToCheck = [obj.line_col]
+			else:
+				print ('-----ot found File Type ---')
+				headerContainerToCheck = ['CNTR NO.','Conts. No.','CTNR NO','cont', 'Container','container', 'CNTR','Cont no.','Container Nos']
+				headerBookingToCheck = ['Booking No.','BOOKING NO','Booking No.','Bkg','Booking','BKG','BOOKING','BKG NO','Bkg','BK Number']
+				headerVoyToCheck =['Voyage','VOY','Voy.','Voy. ','Voy','voy','Feeder Voyage']
+				headerPodToCheck = ['TSP 1','pod','POD','DISH PORT','Final']
+				headerShipperToCheck = ['Shipper/Consignee','SHIPPER NAME','Shipper Name.','Shipper Name','Shipper','SHIPPER','Shipper']
+				headerVesselToCheck = ['Vessel Info.','VESSEL NAME','vessel','Vessel Name','Vessel','Feeder Vessel']
+				headerTypeToCheck = ['SzTp','TYP','Type.','Conts.Type','Size','D2','SZ','Size Type']
+				headerSizeToCheck = ['SzTp','Size.','Conts.Size','Size','SZ','Size Type']
+				headerHighToCheck = ['SzTp','HGT','High','Conts.HGT','Size','SZ','Size Type']
+				headerTermToCheck = ['TERM','term','Term','Payment','payment','PAYMENT']
+				headerUnnoToCheck = ['UNN','UNNO','UN NUMBER','UN NO.','UNDG No.','Unno']
+				headerDGclassToCheck = ['IMDG','DG','DG Class']
+				headerTempToCheck = ['Temp','TEMP','Temp.','Set Temp']
+				headerLineToCheck = ['OPR','LINE(NYK&TSK)','Line','LINE']
+
+			found_Container = False
+			found_Booking = False
+
+			for row_index in range(0, xl_sheet.nrows):
+				for col_index in range(xl_sheet.ncols):
+					vCell = xl_sheet.cell(row_index, col_index).value.__str__().strip()
+
+					if any(header in vCell  for header in headerContainerToCheck):
+						head_index = row_index
+						Container_index = col_index
+						Container_col_name = vCell
+						found_Container = True
+						print('Header on row %s' % row_index)
+						print ('Container data on col %s' % Container_index )
+					
+					if any(header in vCell for header in headerBookingToCheck):
+						head_index = row_index
+						Booking_index = col_index
+						Booking_col_name = vCell
+						found_Booking = True
+						print ('Booking data on col %s' % Booking_index )
+											#VOY
+
+					
+						
+					if found_Container and found_Booking :
+						break
+
+				if found_Container and found_Booking :
+						break
+			ContSize_index = None
+			ContHigh_index = None
+			ContTerm_index = None
+			ContUnno_index = None
+			ContDGclass_index = None
+			ContTemp_index = None
+			ContLine_index =None
+			for col_index in range(xl_sheet.ncols):
+				vCell = xl_sheet.cell(head_index, col_index).value.__str__().strip()
+				if any( header == vCell for header in headerVoyToCheck):
+						Voy_index = col_index
+				if any( header == vCell for header in headerPodToCheck):
+						Pod_index = col_index
+				if any( header == vCell for header in headerShipperToCheck):
+						Shipper_index = col_index
+				if any( header == vCell for header in headerVesselToCheck):
+						Vessel_index = col_index
+				if any( header == vCell for header in headerTypeToCheck):
+						ContType_index = col_index
+				if any( header == vCell for header in headerSizeToCheck):
+						ContSize_index = col_index
+				if any( header == vCell for header in headerHighToCheck):
+						ContHigh_index = col_index
+				if any( header == vCell for header in headerTermToCheck):
+						ContTerm_index = col_index
+				if any( header == vCell for header in headerUnnoToCheck):
+						ContUnno_index = col_index
+				if any( header == vCell for header in headerUnnoToCheck):
+						ContDGclass_index = col_index
+				if any( header == vCell for header in headerTempToCheck):
+						ContTemp_index = col_index
+				if any( header == vCell for header in headerLineToCheck):
+						ContLine_index = col_index
+
+			#Make Key(header)
+			keys = [xl_sheet.cell(head_index, col_index).value for col_index in range(xl_sheet.ncols)]
+			#Replace Col to standard name
+			keys[Booking_index] = 'booking'
+			keys[Container_index] = 'container'
+			keys[Voy_index] = 'voy'
+			keys[Pod_index] = 'pod'
+			keys[Shipper_index] = 'shipper'
+			keys[Vessel_index] = 'vessel'
+			keys[ContType_index] = 'type'
+
+			if ContType_index != ContSize_index:
+				if ContSize_index != None :
+					keys[ContSize_index] = 'size'
+			if ContType_index != ContHigh_index:
+				if ContHigh_index != None:
+					keys[ContHigh_index] = 'high'
+
+			if ContTerm_index != None:
+				keys[ContTerm_index] = 'term'
+			if ContUnno_index != None:
+				keys[ContUnno_index] = 'unno'
+			if ContDGclass_index != None:
+				keys[ContDGclass_index] = 'dg_class'
+			if ContTemp_index != None:
+				keys[ContTemp_index] = 'temp'
+			if ContLine_index != None:
+				keys[ContLine_index] = 'line'
+
+
+			dict_list = []
+			regex='^[A-Z]{4}[0-9]{7}$'
+			item_count =0
+			new_count = 0
+			for row_index in range(head_index+1, xl_sheet.nrows):
+				vContainerData = xl_sheet.cell(row_index, Container_index).value.__str__()
+				vBooingData = xl_sheet.cell(row_index, Booking_index).value.__str__()
+				if (vContainerData !='' and re.match(regex,vContainerData)) :
+				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value 
+				         for col_index in range(xl_sheet.ncols)}
+				    # Check Container and Booking Exist.
+				    objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
+				    if objContBook:
+				    	d['new'] ='No'
+				    else:
+				    	d['new'] ='Yes'
+				    	new_count+=1
+				    item_count= item_count+1
+				    dict_list.append(d)
+			# dict_list.append({'container_index':Container_index })
+			# dict_list.append({'booking_index':Booking_index })
+			# print (dict_list)
+			filename = filehandle
+			# dict_list.update({'line': 'MSC'})
+			if obj:
+				for i, d in enumerate(dict_list): 
+					if obj.line_col != None or obj.line_col !='':
+						d['line'] = obj.line_default
+
+			#Adjust data follow TypeIn
+					#Swap POD (for all)
+					d['pod'] = d['pod'][2:] + d['pod'][:2]
+
+					#Change CASH to Y (for all)
+					if d['term']=='CASH':
+						d['term'] ='Y'
+					else:
+						d['term'] = 'N'
+
+					print (fileTypeIn,fileTypeIn.__str__())
+					if fileTypeIn.__str__() == 'MSC Shore File':
+						container_long = d['type'][:2]
+						container_type = d['type'][2:]
+						d['size'] = container_long
+						print (d['type'])
+						d['long'] =  d['type'][:2]
+
+						if container_type=='DV':
+							d['type'] = 'DV'
+							d['high'] = '8.6'
+
+
+						if container_type=='HC':
+							d['type'] = 'DV'
+							d['high'] = '9.6'
+
+						if container_type=='HR':
+							d['type'] ='RE'
+							if container_long =='40' :
+								d['high'] = '9.6'
+
+						if d['term']=='CASH':
+							d['term'] ='Y'
+						else:
+							d['term'] = 'N'
+						
+
+			# return render_to_response('import_excel.html', 
+			# 					{'rows': dict_list,
+			# 					'col_container': Container_index,
+			# 					'col_booking': Booking_index})
+		else:
+			return HttpResponseBadRequest()
+	else:
+		form = UploadFileForm()
+		dict_list = None
+		filename = None
+		item_count = None
+		new_count =None
+	return render(
+		request,
+		'upload_form.html',
+		{
+		'form': form,
+		'title': 'Import excel data into database',
+		'header': 'Please upload xls file:',
+		'rows' : dict_list,
+		'filename' : filename,
+		'total' : item_count,
+		'new' : new_count
+		})
