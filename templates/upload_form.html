@@ -34,10 +34,28 @@
         <input type="submit" value="Submit">
     </form>
    
+
+   {% if filename != None %}
    <h2>File Name : {{ filename }} <small> 
         <button type="button" class="btn btn-primary btn-sm">Total {{ total }}</button>
         <button type="button" class="btn btn-success btn-sm">New {{new}}</button>
-        </small></h2>
+        </small>
+    </h2>
+
+    <form method="POST" action="confirm/">
+      <input type="hidden" name="slug" value="{{ slug }}">
+      <input type="hidden" name="rows" value="{{ rows }}">
+      {% csrf_token %}
+      <input type="submit" value="Confirm">
+    </form>
+
+    <form method="POST" action="delete/">
+      <input type="hidden" name="slug" value="{{ slug }}">
+      {% csrf_token %}
+      <input type="submit" value="Delete">
+    </form>
+
+
     <table class="table">
   <thead class="thead-inverse">
     <tr>
@@ -83,11 +101,10 @@
 
         </tr>
         
-    {% endfor %}
-    
-    
+    {% endfor %}    
   </tbody>
 </table>
-    
+{% endif %}
+
 </body>
 </html>

@@ -35,7 +35,8 @@ class ContainerSerializer(ModelSerializer):
 			'created_date',
 			'modified_date',
 			'booking',
-			'user'
+			'user',
+			'draft'
 			]
 
 
@@ -57,7 +58,8 @@ class ContainerDetailSerializer(ModelSerializer):
 			'created_date',
 			'modified_date',
 			'booking',
-			'user'
+			'user',
+			'draft'
 			]
 
 class ContainerCreateUpdateSerializer (ModelSerializer):

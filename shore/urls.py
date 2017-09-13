@@ -17,8 +17,10 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls import include, url
 
-from .views import upload,import_data
+from .views import upload,import_data,confirm_data,delete_data
 
 urlpatterns = [
-    url(r'^',import_data ,name='upload'),
+    url(r'^$',import_data ,name='upload'),
+    url(r'^confirm/$',confirm_data ,name='confirm'),
+    url(r'^delete/$',delete_data ,name='delete'),
 ]

@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'shore',
     'shipper',
     'vessel',
-    'container'
+    'container',
+    'shorefile'
 ]
 
 MIDDLEWARE = [
@@ -122,7 +123,11 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+# STATIC_URL = '/static/'
 STATIC_URL = '/static/'
+STATIC_ROOT = "d:\\crm\\static\\"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "d:\\crm\\media\\"
 
 
 FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",

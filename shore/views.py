@@ -1,11 +1,13 @@
 from django.shortcuts import render,render_to_response
-
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.core.urlresolvers import reverse
 # Create your views here.
 from .forms import UploadFileForm
-from .models import (FileType,Container)
+from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking)
 import django_excel as excel
 import xlrd
 import re
+import datetime
 
 # Create your views here.
 def upload(request):
@@ -28,6 +30,52 @@ def upload(request):
                        'from your cloned repository:')
         })
 
+def confirm_data(request):
+	slug = request.POST.get('slug', '')
+	rows = request.POST.get('rows', '')
+	sf = ShoreFile.objects.get(slug=slug)
+	if slug:
+		import ast
+		datas = ast.literal_eval(rows)
+		for i, d in enumerate(datas):
+			if d['new'] =='Yes':
+				vessel = Vessel.objects.get(name=d['vessel'])
+				shipper = Shipper.objects.get(name=d['shipper'])
+				booking,created = Booking.objects.get_or_create(number=d['booking'],voy=d['voy'],pod=d['pod'],
+					shipper=shipper,vessel=vessel)
+				if created:
+					print('Created new Booking')
+
+				line = d['line']
+
+				container = Container.objects.create(number= d['container'],booking=booking,
+									container_type = d['type'],
+									container_size = d['size'],
+									container_high = d['high'],
+									dg_class = d['dg_class'],
+									unno = d['unno'],
+									payment = d['term'],
+									draft=True,
+									shorefile= sf)
+				if d['type'] =='RF':
+					container.temperature = float(d['temp'])
+					container.save()
+
+				print('%s -- %s' % (booking,container))
+
+		sf.status='A'
+		sf.save()
+		print('Confirm Done')
+	return HttpResponseRedirect(reverse('upload'))
+
+def delete_data(request):
+	slug = request.POST.get('slug', '')
+	if slug:
+		sf = ShoreFile.objects.get(slug=slug)
+		sf.delete()
+		print('Delete Done')
+	return HttpResponseRedirect(reverse('upload'))
+
 def import_data(request):
 	if request.method == "POST":
 		form = UploadFileForm(request.POST,
@@ -46,6 +94,14 @@ def import_data(request):
 			# get Shore File Type
 			fileTypeIn = form.cleaned_data['filetype']
 			obj = FileType.objects.get(name=fileTypeIn)
+			fobj = ShoreFile.objects.filter(name=filehandle)
+			if fobj.count() == 0:
+				fileInName=filehandle
+			else:
+				fileInName= str(filehandle) + datetime.datetime.now().strftime("%Y%m%d%H%M")
+				
+			
+
 			if obj:
 				print ('-----Using File Type Configuration---')
 				headerContainerToCheck = [obj.container_col]
@@ -116,6 +172,7 @@ def import_data(request):
 			ContDGclass_index = None
 			ContTemp_index = None
 			ContLine_index =None
+
 			for col_index in range(xl_sheet.ncols):
 				vCell = xl_sheet.cell(head_index, col_index).value.__str__().strip()
 				if any( header == vCell for header in headerVoyToCheck):
@@ -136,7 +193,7 @@ def import_data(request):
 						ContTerm_index = col_index
 				if any( header == vCell for header in headerUnnoToCheck):
 						ContUnno_index = col_index
-				if any( header == vCell for header in headerUnnoToCheck):
+				if any( header == vCell for header in headerDGclassToCheck):
 						ContDGclass_index = col_index
 				if any( header == vCell for header in headerTempToCheck):
 						ContTemp_index = col_index
@@ -153,6 +210,7 @@ def import_data(request):
 			keys[Shipper_index] = 'shipper'
 			keys[Vessel_index] = 'vessel'
 			keys[ContType_index] = 'type'
+			# keys[ContLine_index] = 'line' 
 
 			if ContType_index != ContSize_index:
 				if ContSize_index != None :
@@ -165,6 +223,7 @@ def import_data(request):
 				keys[ContTerm_index] = 'term'
 			if ContUnno_index != None:
 				keys[ContUnno_index] = 'unno'
+				print ('found index of unno')
 			if ContDGclass_index != None:
 				keys[ContDGclass_index] = 'dg_class'
 			if ContTemp_index != None:
@@ -199,18 +258,24 @@ def import_data(request):
 			# dict_list.update({'line': 'MSC'})
 			if obj:
 				for i, d in enumerate(dict_list): 
-					if obj.line_col != None or obj.line_col !='':
+					# if obj.line_col != None or obj.line_col !='':
+					# 	d['line'] = obj.line_default
+					if obj.line_col == None or obj.line_col =='':
 						d['line'] = obj.line_default
+
 
 			#Adjust data follow TypeIn
 					#Swap POD (for all)
 					d['pod'] = d['pod'][2:] + d['pod'][:2]
 
 					#Change CASH to Y (for all)
-					if d['term']=='CASH':
-						d['term'] ='Y'
+					if 'term' in d.keys():
+						if d['term']=='CASH':
+							d['term'] ='Y'
+						else:
+							d['term'] = 'N'
 					else:
-						d['term'] = 'N'
+						d['term'] ='Y'
 
 					print (fileTypeIn,fileTypeIn.__str__())
 					if fileTypeIn.__str__() == 'MSC Shore File':
@@ -240,27 +305,29 @@ def import_data(request):
 							d['term'] = 'N'
 						
 
-			# return render_to_response('import_excel.html', 
-			# 					{'rows': dict_list,
-			# 					'col_container': Container_index,
-			# 					'col_booking': Booking_index})
+			# Save to Shore File
+			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
+			instance.save()
+			vSlug = instance.slug
 		else:
-			return HttpResponseBadRequest()
+			return None
 	else:
 		form = UploadFileForm()
 		dict_list = None
 		filename = None
 		item_count = None
 		new_count =None
+		vSlug = None
 	return render(
 		request,
 		'upload_form.html',
 		{
 		'form': form,
 		'title': 'Import excel data into database',
-		'header': 'Please upload xls file:',
+		'header': 'Please upload Shore xls file:',
 		'rows' : dict_list,
 		'filename' : filename,
 		'total' : item_count,
-		'new' : new_count
+		'new' : new_count,
+		'slug': vSlug
 		})

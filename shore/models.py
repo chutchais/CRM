@@ -40,16 +40,23 @@ class FileType(models.Model):
 		return self.name
 
 class ShoreFile(models.Model):
-	name = models.CharField(max_length=50,primary_key=True)
+	name = models.CharField(max_length=100,primary_key=True)
+	filename = models.FileField(upload_to='shores/%Y/%m/%d/',blank=True, null=True)
+	filetype =  models.ForeignKey('FileType', related_name='shorefiles',blank=True, null=True)
 	slug = models.SlugField(unique=True,blank=True, null=True)
 	description = models.CharField(max_length=255,blank=True, null=True)
-	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
+	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=DEACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
 	user = models.ForeignKey('auth.User',blank=True,null=True)
+	upload_status = models.NullBooleanField(verbose_name ='Upload Status')
+	upload_date = models.DateTimeField(blank=True, null=True)
+	upload_msg = models.CharField(max_length=255,blank=True, null=True)
 	
 	def __str__(self):
 		return self.name
+	class Meta:
+		ordering = ('-created_date',)
 
 class Vessel(models.Model):
 	name = models.CharField(verbose_name ='Feeder Vessel',max_length=50)
@@ -100,7 +107,7 @@ class Container(models.Model):
 	container_size = models.CharField(max_length=10,blank=True, null=True ,default='20')
 	container_high = models.CharField(max_length=10,blank=True, null=True ,default='8.6')
 	description = models.CharField(max_length=255,blank=True, null=True)
-	payment = models.CharField(max_length=10,blank=True, null=True ,default='CASH')
+	payment = models.CharField(verbose_name ='Payment(Cash)',max_length=10,blank=True, null=True ,default='CASH')
 	dg_class =  models.CharField(max_length=10,blank=True, null=True)
 	unno =  models.CharField(max_length=20,blank=True, null=True)
 	temperature = models.FloatField(default=20)
@@ -112,6 +119,7 @@ class Container(models.Model):
 	upload_status = models.NullBooleanField(verbose_name ='Upload Success')
 	upload_date = models.DateTimeField(blank=True, null=True)
 	upload_msg = models.CharField(max_length=255,blank=True, null=True)
+	shorefile  = models.ForeignKey('ShoreFile', related_name='containers',blank=True, null=True)
 	
 	def __str__(self):
 		return self.number
@@ -170,3 +178,28 @@ def pre_save_booking_receiver(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = create_booking_slug(instance)
 pre_save.connect(pre_save_booking_receiver, sender=Booking)
+
+def create_shorefile_slug(instance, new_slug=None):
+    import datetime
+    slug = slugify(instance.name)
+    print ('New slug %s' % slug)
+    if new_slug is not None:
+        slug = new_slug
+    qs = ShoreFile.objects.filter(slug=slug)
+    exists = qs.exists()
+    if exists:
+        # new_slug = "%s-%s" %(slug, qs.first().id)
+        new_slug = "%s-%s" %(slug, datetime.datetime.now().strftime("%Y-%m-%d-%H-%M"))
+        print ('New slug %s' % new_slug)
+        return create_shorefile_slug(instance, new_slug=new_slug)
+    return slug
+
+
+def pre_save_shorefile_receiver(sender, instance, *args, **kwargs):
+	# print ('Presave Trigger')
+	#To support Save as Draft 
+	# instance.slug = create_shorefile_slug(instance)
+	if not instance.slug:
+		instance.slug = create_shorefile_slug(instance)
+
+pre_save.connect(pre_save_shorefile_receiver, sender=ShoreFile)

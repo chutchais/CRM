@@ -37,12 +37,13 @@ class ContainerListAPIView(ListAPIView):
 	filter_backends=[SearchFilter,OrderingFilter]
 	search_fields =['number']
 	def get_queryset(self,*args,**kwargs):
-		queryset_list =Container.objects.all()
+		queryset_list = None#Container.objects.all()
 		number = self.request.GET.get("number")
 		booking = self.request.GET.get("booking")
+		draft = self.request.GET.get("draft")
 		if number != None and booking == None :
 			queryset_list = Container.objects.filter(
-					Q(number__icontains = number) )
+					Q(number__icontains = number),draft=False )
 		if number != None and booking !=None :
 			b = Booking.objects.filter(number=booking)
 			if b == None:
@@ -50,7 +51,10 @@ class ContainerListAPIView(ListAPIView):
 			else:
 				queryset_list = Container.objects.filter(
 						Q(number__icontains = number) &
-						Q(booking = b.first()))
+						Q(booking = b.first()),draft=False)
+		if draft == 'true':
+			queryset_list = Container.objects.filter(draft=True)
+
 		return queryset_list
 	# pagination_class = PostPageNumberPagination
 
