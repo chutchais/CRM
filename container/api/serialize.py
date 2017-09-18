@@ -6,10 +6,11 @@ from rest_framework.serializers import (
 
 
 from shore.models import (Container)
+from booking.api.serialize import BookingSerializer
 
 container_detail_url=HyperlinkedIdentityField(
 		view_name='container-api:detail',
-		lookup_field='number'
+		lookup_field='slug'
 		)
 
 
@@ -17,6 +18,7 @@ container_detail_url=HyperlinkedIdentityField(
 
 class ContainerSerializer(ModelSerializer):
 	url =  container_detail_url
+	booking = BookingSerializer()
 	class Meta:
 		model = Container
 		# fields ='__all__'
@@ -26,6 +28,7 @@ class ContainerSerializer(ModelSerializer):
 			'url',
 			'container_type',
 			'container_size',
+			'container_high',
 			'description',
 			'payment',
 			'dg_class',
@@ -36,8 +39,16 @@ class ContainerSerializer(ModelSerializer):
 			'modified_date',
 			'booking',
 			'user',
-			'draft'
+			'draft',
+			'slug'
 			]
+	def create(self, validated_data):
+		print ('Create on Rest')
+		return Container(**validated_data)
+
+	def update(self, instance, validated_data):
+		print ('Update on Rest')
+		return instance
 
 
 class ContainerDetailSerializer(ModelSerializer):
@@ -59,7 +70,8 @@ class ContainerDetailSerializer(ModelSerializer):
 			'modified_date',
 			'booking',
 			'user',
-			'draft'
+			'draft',
+			'slug'
 			]
 
 class ContainerCreateUpdateSerializer (ModelSerializer):
@@ -75,8 +87,19 @@ class ContainerCreateUpdateSerializer (ModelSerializer):
 			'dg_class',
 			'unno',
 			'temperature',
-			'status'
+			'status',
+			'upload_status',
+			'upload_date',
+			'upload_msg',
+			'draft'
 			]
+	# def create(self, validated_data):
+	# 	print ('Create on Rest')
+	# 	return Container(**validated_data)
+
+	# def update(self, instance, validated_data):
+	# 	print ('Update on Rest')
+	# 	return instance
 
 
 

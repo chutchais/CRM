@@ -39,10 +39,10 @@ def confirm_data(request):
 		datas = ast.literal_eval(rows)
 		for i, d in enumerate(datas):
 			if d['new'] =='Yes':
-				vessel = Vessel.objects.get(name=d['vessel'])
-				shipper = Shipper.objects.get(name=d['shipper'])
+				vessel ,created = Vessel.objects.get_or_create(name=d['vessel'])
+				shipper,created = Shipper.objects.get_or_create(name=d['shipper'])
 				booking,created = Booking.objects.get_or_create(number=d['booking'],voy=d['voy'],pod=d['pod'],
-					shipper=shipper,vessel=vessel)
+					shipper=shipper,vessel=vessel,line=d['line'])
 				if created:
 					print('Created new Booking')
 
@@ -57,7 +57,7 @@ def confirm_data(request):
 									payment = d['term'],
 									draft=True,
 									shorefile= sf)
-				if d['type'] =='RF':
+				if d['type'] =='RE':
 					container.temperature = float(d['temp'])
 					container.save()
 

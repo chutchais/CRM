@@ -15,16 +15,33 @@ from django.utils.translation import gettext_lazy as _
 
 
 
+class Containerline(admin.TabularInline):
+    model = Container
+    extra = 1
+    # fields = ('machine','description','start_date','stop_date')
+    # readonly_fields = ('total_hour',)
+
+    # def total_hour(self,obj):
+    #     fmt = '%Y-%m-%d %H:%M:%S'
+    #     # d1 = datetime.strptime(obj.stop_date, fmt)
+    #     # d2 = datetime.strptime(obj.start_date, fmt)
+    #     if obj.stop_date:
+    #         elapsed = obj.stop_date - obj.start_date
+    #         return elapsed
+    #     else:
+    #         return ''
 
 class ShoreFileAdmin(admin.ModelAdmin):
     search_fields = ['name','description']
     list_filter = ['status','filetype','created_date']
-    list_display = ('name','filetype','description','modified_date','status','upload_status','upload_date')
+    list_display = ('name','filetype','item_count','description','modified_date','status','upload_status','upload_date')
     list_editable = ()
     fieldsets = [
         ('Basic Information',{'fields': ['name','filetype','filename','description','slug','status']}),
         ('Upload Information',{'fields': ['upload_status','upload_date','upload_msg']}),
     ]
+    inlines=[Containerline]
+    
 admin.site.register(ShoreFile,ShoreFileAdmin)
 
 
@@ -52,12 +69,12 @@ admin.site.register(Shipper,ShipperAdmin)
 
 
 class BookingAdmin(admin.ModelAdmin):
-    search_fields = ['number','voy','pod','shipper__name','vessel__name','description']
-    list_filter = ['pod','shipper']
-    list_display = ('number','voy','pod','shipper','vessel','description','created_date')
+    search_fields = ['number','voy','pod','shipper__name','vessel__name','line','description']
+    list_filter = ['line','pod','shipper']
+    list_display = ('number','line','voy','pod','shipper','vessel','description','created_date')
     list_editable = ()
     fieldsets = [
-        ('Basic Information',{'fields': ['number','slug','voy','pod','shipper','vessel','description','status','user']}),
+        ('Basic Information',{'fields': ['number','slug','line','voy','pod','shipper','vessel','description','status','user']}),
     ]
 admin.site.register(Booking,BookingAdmin)
 
@@ -69,7 +86,7 @@ class ContainerAdmin(admin.ModelAdmin):
     list_display = ['number','booking','container_type','container_size','payment','dg_class','created_date','draft','upload_status']
     list_editable = ()
     fieldsets = [
-        ('Basic Information',{'fields': ['number','booking','description']}),
+        ('Basic Information',{'fields': ['number','booking','description','slug']}),
         ('Type',{'fields': ['container_type','container_size','dg_class','temperature']}),
         ('Other',{'fields': ['payment','unno','status']}),
         ('Draft',{'fields': ['draft']}),

@@ -6,7 +6,8 @@ from rest_framework.generics import (
 	ListAPIView,
 	UpdateAPIView,
 	RetrieveAPIView,
-	RetrieveUpdateAPIView
+	RetrieveUpdateAPIView,
+	RetrieveUpdateDestroyAPIView
 	)
 
 from rest_framework.filters import (
@@ -40,6 +41,10 @@ class ShoreFileListAPIView(ListAPIView):
 	def get_queryset(self,*args,**kwargs):
 		queryset_list = None #ShoreFile.objects.all()
 		name = self.request.GET.get("name")
+		status = self.request.GET.get("status")
+		if status != None :
+			queryset_list = ShoreFile.objects.filter(
+					Q(status = status),upload_status=None)
 		if name != None :
 			queryset_list = ShoreFile.objects.filter(
 					Q(name__icontains = name))
@@ -66,7 +71,7 @@ class ShoreFileCreateAPIView(CreateAPIView):
 	# 	print ('Now Creating Data')
 	# permission_classes = [IsAuthenticated]
 
-class ShoreFileUpdateAPIView(RetrieveUpdateAPIView):
+class ShoreFileUpdateAPIView(RetrieveUpdateDestroyAPIView):
 	queryset=ShoreFile.objects.all()
 	serializer_class=ShoreFileUpdateSerializer
 	lookup_field='slug'

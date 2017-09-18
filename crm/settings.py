@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'shipper',
     'vessel',
     'container',
-    'shorefile'
+    'shorefile',
+    'booking'
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,8 @@ MEDIA_ROOT = "d:\\crm\\media\\"
 
 FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
                         "django_excel.TemporaryExcelFileUploadHandler")
+
+
+
+# admin.site.site_header = 'Customer Relationship System'
+# admin.site.site_title = 'Customer Relationship System'

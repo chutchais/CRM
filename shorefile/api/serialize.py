@@ -6,6 +6,7 @@ from rest_framework.serializers import (
 
 
 from shore.models import (ShoreFile)
+from container.api.serialize import ContainerSerializer
 
 shorefile_detail_url=HyperlinkedIdentityField(
 		view_name='shorefile-api:detail',
@@ -33,6 +34,8 @@ class ShoreFileUpdateSerializer (ModelSerializer):
 	class Meta:
 		model = ShoreFile
 		fields =[
+			'name',
+			'filename',
 			'description',
 			'status',
 			'upload_status',
@@ -68,16 +71,35 @@ class ShoreFileSerializer(ModelSerializer):
 			'user',
 			'upload_status',
 			'upload_date',
-			'upload_msg'
+			'upload_msg',
+			'item_count'
 			]
 
 
 class ShoreFileDetailSerializer(ModelSerializer):
 	# vessel = BookingVesselSerializer()
 	# shipper = BookingShipperSerializer()
+	containers = ContainerSerializer(many=True)#SerializerMethodField()
+	url = shorefile_detail_url
 	class Meta:
 		model = ShoreFile
-		fields ='__all__'
+		# fields ='__all__'
+		fields = [
+			'name',
+			'filename',
+			'filetype',
+			'url',
+			'slug',
+			'description',
+			'status',
+			'created_date',
+			'user',
+			'upload_status',
+			'upload_date',
+			'upload_msg',
+			'item_count',
+			'containers'
+			]
 
 
 

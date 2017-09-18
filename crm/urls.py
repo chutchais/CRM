@@ -26,7 +26,8 @@ from django.conf import settings
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^shore/', include('shore.urls')),
-    url(r'api/booking/', include("shore.api.urls", namespace='booking-api')),
+    url(r'api/booking/', include("booking.api.urls", namespace='booking-api')),
+    # url(r'api/booking/', include("shore.api.urls", namespace='booking-api')),
     url(r'api/shipper/', include("shipper.api.urls", namespace='shipper-api')),
     url(r'api/vessel/', include("vessel.api.urls", namespace='vessel-api')),
     url(r'api/container/', include("container.api.urls", namespace='container-api')),

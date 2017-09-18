@@ -39,6 +39,8 @@ class FileType(models.Model):
 	def __str__(self):
 		return self.name
 
+
+
 class ShoreFile(models.Model):
 	name = models.CharField(max_length=100,primary_key=True)
 	filename = models.FileField(upload_to='shores/%Y/%m/%d/',blank=True, null=True)
@@ -55,6 +57,10 @@ class ShoreFile(models.Model):
 	
 	def __str__(self):
 		return self.name
+	
+	def item_count(self):
+		return self.containers.count()
+
 	class Meta:
 		ordering = ('-created_date',)
 
@@ -89,6 +95,7 @@ class Booking(models.Model):
 	slug = models.SlugField(unique=True,blank=True, null=True)
 	voy = models.CharField(verbose_name ='Voyage',max_length=50,blank=True, null=True)
 	pod = models.CharField(verbose_name ='Port Of Destination',max_length=50,blank=True, null=True)
+	line = models.CharField(verbose_name ='Line',max_length=50,blank=True, null=True)
 	shipper  = models.ForeignKey('Shipper', related_name='bookings')
 	vessel  = models.ForeignKey('Vessel', related_name='bookings')
 	description = models.CharField(max_length=255,blank=True, null=True)
@@ -102,6 +109,7 @@ class Booking(models.Model):
 
 class Container(models.Model):
 	number = models.CharField(max_length=50,blank=False, null=False)
+	slug = models.SlugField(unique=True,blank=True, null=True)
 	booking  = models.ForeignKey('Booking', related_name='containers')
 	container_type = models.CharField(max_length=10,default='DV')
 	container_size = models.CharField(max_length=10,blank=True, null=True ,default='20')
@@ -194,7 +202,6 @@ def create_shorefile_slug(instance, new_slug=None):
         return create_shorefile_slug(instance, new_slug=new_slug)
     return slug
 
-
 def pre_save_shorefile_receiver(sender, instance, *args, **kwargs):
 	# print ('Presave Trigger')
 	#To support Save as Draft 
@@ -203,3 +210,26 @@ def pre_save_shorefile_receiver(sender, instance, *args, **kwargs):
 		instance.slug = create_shorefile_slug(instance)
 
 pre_save.connect(pre_save_shorefile_receiver, sender=ShoreFile)
+
+
+def create_container_slug(instance, new_slug=None):
+    import datetime
+    slug = slugify(instance.number)
+    if new_slug is not None:
+        slug = new_slug
+    qs = Container.objects.filter(slug=slug)
+    exists = qs.exists()
+    if exists:
+        # new_slug = "%s-%s" %(slug, qs.first().id)
+        new_slug = "%s-%s" %(slug,instance.booking )
+        return create_container_slug(instance, new_slug=new_slug)
+    return slug
+
+def pre_save_container_receiver(sender, instance, *args, **kwargs):
+	# print ('Presave Trigger')
+	#To support Save as Draft 
+	# instance.slug = create_shorefile_slug(instance)
+	if not instance.slug:
+		instance.slug = create_container_slug(instance)
+
+pre_save.connect(pre_save_container_receiver, sender=Container)

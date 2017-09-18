@@ -6,8 +6,11 @@ from rest_framework.generics import (
 	ListAPIView,
 	UpdateAPIView,
 	RetrieveAPIView,
-	RetrieveUpdateAPIView
+	RetrieveUpdateAPIView,
+	RetrieveUpdateDestroyAPIView
 	)
+
+from rest_framework import status , generics , mixins
 
 from rest_framework.filters import (
 	SearchFilter,
@@ -35,7 +38,7 @@ class ContainerListAPIView(ListAPIView):
 	queryset = Container.objects.all()
 	serializer_class= ContainerSerializer
 	filter_backends=[SearchFilter,OrderingFilter]
-	search_fields =['number']
+	search_fields =['slug']
 	def get_queryset(self,*args,**kwargs):
 		queryset_list = None#Container.objects.all()
 		number = self.request.GET.get("number")
@@ -61,13 +64,13 @@ class ContainerListAPIView(ListAPIView):
 class ContainerDetailAPIView(RetrieveAPIView):
 	queryset= Container.objects.all()
 	serializer_class= ContainerDetailSerializer
-	lookup_field='number'
+	lookup_field='slug'
 	# print ("vessel details")
 
 class ContainerDeleteAPIView(DestroyAPIView):
 	queryset= Container.objects.all()
 	serializer_class= ContainerDetailSerializer
-	lookup_field='number'
+	lookup_field='slug'
 	# permission_classes = [IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly]
 
 
@@ -75,6 +78,27 @@ class ContainerCreateAPIView(CreateAPIView):
 	queryset=Container.objects.all()
 	serializer_class=ContainerCreateUpdateSerializer
 	# permission_classes = [IsAuthenticated]
+
+class ContainerUpdateAPIView(RetrieveUpdateDestroyAPIView):
+	queryset= Container.objects.all()
+	serializer_class= ContainerCreateUpdateSerializer
+	lookup_field='slug'
+	print('On ContainerUpdateAPIView')
+
+
+
+	# def update(self, request, *args, **kwargs):
+	# 	print('Hit Update function')
+	# 	instance = self.get_object()
+	# 	instance.name = request.data.get("name")
+	# 	instance.save()
+
+	# 	partial = kwargs.pop('partial', False)
+	# 	serializer = self.get_serializer(instance,data=request.data, partial=partial)
+	# 	serializer.is_valid(raise_exception=True)
+	# 	self.perform_update(serializer)
+
+	# 	return Response(serializer.data)
 
 
 
