@@ -35,7 +35,6 @@ class ShoreFileUpdateSerializer (ModelSerializer):
 		model = ShoreFile
 		fields =[
 			'name',
-			'filename',
 			'description',
 			'status',
 			'upload_status',
