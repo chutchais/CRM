@@ -61,6 +61,9 @@ class ShoreFile(models.Model):
 	def item_count(self):
 		return self.containers.count()
 
+	def uploaded_count(self):
+		return self.containers.filter(upload_status__isnull = False).count()
+
 	class Meta:
 		ordering = ('-created_date',)
 

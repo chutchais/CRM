@@ -40,7 +40,10 @@ class ContainerSerializer(ModelSerializer):
 			'booking',
 			'user',
 			'draft',
-			'slug'
+			'slug',
+			'upload_status',
+			'upload_date',
+			'upload_msg'
 			]
 	def create(self, validated_data):
 		print ('Create on Rest')
@@ -71,7 +74,10 @@ class ContainerDetailSerializer(ModelSerializer):
 			'booking',
 			'user',
 			'draft',
-			'slug'
+			'slug',
+			'upload_status',
+			'upload_date',
+			'upload_msg'
 			]
 
 class ContainerCreateUpdateSerializer (ModelSerializer):

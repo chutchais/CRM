@@ -34,7 +34,7 @@ class Containerline(admin.TabularInline):
 class ShoreFileAdmin(admin.ModelAdmin):
     search_fields = ['name','description']
     list_filter = ['status','filetype','created_date']
-    list_display = ('name','filetype','item_count','description','modified_date','status','upload_status','upload_date')
+    list_display = ('name','filetype','item_count','uploaded_count','description','modified_date','status','upload_status','upload_date')
     list_editable = ()
     fieldsets = [
         ('Basic Information',{'fields': ['name','filetype','filename','description','slug','status']}),
