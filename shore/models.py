@@ -99,7 +99,7 @@ class Booking(models.Model):
 	voy = models.CharField(verbose_name ='Voyage',max_length=50,blank=True, null=True)
 	pod = models.CharField(verbose_name ='Port Of Destination',max_length=50,blank=True, null=True)
 	line = models.CharField(verbose_name ='Line',max_length=50,blank=True, null=True)
-	shipper  = models.ForeignKey('Shipper', related_name='bookings')
+	shipper  = models.ForeignKey('Shipper', related_name='bookings',blank=True, null=True)
 	vessel  = models.ForeignKey('Vessel', related_name='bookings')
 	description = models.CharField(max_length=255,blank=True, null=True)
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)

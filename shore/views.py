@@ -40,7 +40,10 @@ def confirm_data(request):
 		for i, d in enumerate(datas):
 			if d['new'] =='Yes':
 				vessel ,created = Vessel.objects.get_or_create(name=d['vessel'])
-				shipper,created = Shipper.objects.get_or_create(name=d['shipper'])
+				if 'shipper' in d.keys():
+					shipper,created = Shipper.objects.get_or_create(name=d['shipper'])
+				else:
+					shipper = None
 				booking,created = Booking.objects.get_or_create(number=d['booking'],voy=d['voy'],pod=d['pod'],
 					shipper=shipper,vessel=vessel,line=d['line'])
 				if created:
@@ -172,6 +175,7 @@ def import_data(request):
 			ContDGclass_index = None
 			ContTemp_index = None
 			ContLine_index =None
+			Shipper_index = None
 
 			for col_index in range(xl_sheet.ncols):
 				vCell = xl_sheet.cell(head_index, col_index).value.__str__().strip()
@@ -207,10 +211,12 @@ def import_data(request):
 			keys[Container_index] = 'container'
 			keys[Voy_index] = 'voy'
 			keys[Pod_index] = 'pod'
-			keys[Shipper_index] = 'shipper'
+			# keys[Shipper_index] = 'shipper'
 			keys[Vessel_index] = 'vessel'
 			keys[ContType_index] = 'type'
-			# keys[ContLine_index] = 'line' 
+ 
+			if Shipper_index != None :
+					keys[Shipper_index] = 'shipper'
 
 			if ContType_index != ContSize_index:
 				if ContSize_index != None :
@@ -316,6 +322,15 @@ def import_data(request):
 							d['term'] = 'N'
 
 				    # Modify data
+					if d['type']=='GP':
+						d['type'] = 'DV'
+						d['high'] = '8.6'
+
+					if d['type']=='HC':
+						d['high'] = '9.6'
+						d['type'] = 'DV'
+				    
+
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
 					d['high'] = '8.6' if d['high'] == '86' else d['high']
