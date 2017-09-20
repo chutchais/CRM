@@ -223,7 +223,7 @@ def import_data(request):
 				keys[ContTerm_index] = 'term'
 			if ContUnno_index != None:
 				keys[ContUnno_index] = 'unno'
-				print ('found index of unno')
+				# print ('found index of unno')
 			if ContDGclass_index != None:
 				keys[ContDGclass_index] = 'dg_class'
 			if ContTemp_index != None:
@@ -236,11 +236,19 @@ def import_data(request):
 			regex='^[A-Z]{4}[0-9]{7}$'
 			item_count =0
 			new_count = 0
+			import ast
 			for row_index in range(head_index+1, xl_sheet.nrows):
 				vContainerData = xl_sheet.cell(row_index, Container_index).value.__str__()
 				vBooingData = xl_sheet.cell(row_index, Booking_index).value.__str__()
+
+				# vSize = xl_sheet.cell(row_index, ContSize_index).value.__str__()
+				# vReal = int(vSize.replace('.0','')) if '.0' in vSize else float(vSize)
+				# # cc = ast.literal_eval(vSize)
+				# print (vSize,type(vSize),vReal,type(vReal))
+
+
 				if (vContainerData !='' and re.match(regex,vContainerData)) :
-				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value 
+				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__()
 				         for col_index in range(xl_sheet.ncols)}
 				    # Check Container and Booking Exist.
 				    objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
@@ -256,6 +264,7 @@ def import_data(request):
 			# print (dict_list)
 			filename = filehandle
 			# dict_list.update({'line': 'MSC'})
+			# print (dict_list)
 			if obj:
 				for i, d in enumerate(dict_list): 
 					# if obj.line_col != None or obj.line_col !='':
@@ -267,6 +276,8 @@ def import_data(request):
 			#Adjust data follow TypeIn
 					#Swap POD (for all)
 					d['pod'] = d['pod'][2:] + d['pod'][:2]
+					
+					
 
 					#Change CASH to Y (for all)
 					if 'term' in d.keys():
@@ -277,7 +288,7 @@ def import_data(request):
 					else:
 						d['term'] ='Y'
 
-					print (fileTypeIn,fileTypeIn.__str__())
+					# print (fileTypeIn,fileTypeIn.__str__())
 					if fileTypeIn.__str__() == 'MSC Shore File':
 						container_long = d['type'][:2]
 						container_type = d['type'][2:]
@@ -303,12 +314,22 @@ def import_data(request):
 							d['term'] ='Y'
 						else:
 							d['term'] = 'N'
+
+				    # Modify data
+					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
+					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
+					d['high'] = '8.6' if d['high'] == '86' else d['high']
+					d['high'] = '9.6' if d['high'] == '96' else d['high']
+
+					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']
+					d['unno'] = d['unno'].replace('.0','') if '.0' in d['unno'] else d['unno']
 						
 
 			# Save to Shore File
 			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
 			instance.save()
 			vSlug = instance.slug
+			print (dict_list)
 		else:
 			return None
 	else:
