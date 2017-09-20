@@ -329,6 +329,21 @@ def import_data(request):
 					if d['type']=='HC':
 						d['high'] = '9.6'
 						d['type'] = 'DV'
+
+					if d['type']=='4510':
+						d['high'] = '9.6'
+						d['type'] = 'DV'
+						d['size'] = '40'
+
+					if d['type']=='2210':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '20'
+
+					if d['type']=='4310':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '40'
 				    
 
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
@@ -336,9 +351,7 @@ def import_data(request):
 					d['high'] = '8.6' if d['high'] == '86' else d['high']
 					d['high'] = '9.6' if d['high'] == '96' else d['high']
 
-					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']
-					d['unno'] = d['unno'].replace('.0','') if '.0' in d['unno'] else d['unno']
-						
+					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']						
 
 			# Save to Shore File
 			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
