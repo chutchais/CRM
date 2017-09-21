@@ -238,10 +238,13 @@ def import_data(request):
 				keys[ContDGclass_index] = 'dg_class'
 			if ContTemp_index != None:
 				keys[ContTemp_index] = 'temp'
+
 			if ContLine_index != None:
 				keys[ContLine_index] = 'line'
-			if ContAgent_index != None:
-				keys[ContAgent_index] = 'agent'
+
+			if headerLineToCheck != headerAgentToCheck:
+				if ContAgent_index != None:
+					keys[ContAgent_index] = 'agent'
 
 
 			dict_list = []
@@ -250,20 +253,17 @@ def import_data(request):
 			new_count = 0
 			import ast
 			for row_index in range(head_index+1, xl_sheet.nrows):
-				vContainerData = xl_sheet.cell(row_index, Container_index).value.__str__()
-				vBooingData = xl_sheet.cell(row_index, Booking_index).value.__str__()
-
-				# vSize = xl_sheet.cell(row_index, ContSize_index).value.__str__()
-				# vReal = int(vSize.replace('.0','')) if '.0' in vSize else float(vSize)
-				# # cc = ast.literal_eval(vSize)
-				# print (vSize,type(vSize),vReal,type(vReal))
-
-
+				vContainerData = xl_sheet.cell(row_index, Container_index).value.__str__().strip()
+				vBooingData = xl_sheet.cell(row_index, Booking_index).value.__str__().strip()
 				if (vContainerData !='' and re.match(regex,vContainerData)) :
-				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__()
+				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__().strip()
 				         for col_index in range(xl_sheet.ncols)}
 				    # Check Container and Booking Exist.
 				    objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
+				    
+				    if headerLineToCheck == headerAgentToCheck:
+				    	d['agent'] = d['line']
+
 				    if objContBook:
 				    	d['new'] ='No'
 				    else:
@@ -340,6 +340,12 @@ def import_data(request):
 						d['high'] = '9.6'
 						d['type'] = 'DV'
 
+					if d['type']=='HQ':
+						d['type'] = 'DV'
+
+					if d['type']=='RH':
+						d['type'] = 'DV'
+
 					if d['type']=='4510':
 						d['high'] = '9.6'
 						d['type'] = 'DV'
@@ -381,17 +387,23 @@ def import_data(request):
 						d['size'] = '40'
 
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
+
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
 					d['high'] = '8.6' if d['high'] == '86' else d['high']
 					d['high'] = '9.6' if d['high'] == '96' else d['high']
 
-					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']						
+					d['high'] = '9.6' if d['high'] == '906' else d['high']
+
+
+
+					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']
+					d['temp'] = d['temp'].replace('C','')					
 
 			# Save to Shore File
 			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
 			instance.save()
 			vSlug = instance.slug
-			# print (dict_list)
+			print (dict_list)
 		else:
 			return None
 	else:
