@@ -45,7 +45,7 @@ def confirm_data(request):
 				else:
 					shipper = None
 				booking,created = Booking.objects.get_or_create(number=d['booking'],voy=d['voy'],pod=d['pod'],
-					shipper=shipper,vessel=vessel,line=d['line'])
+					shipper=shipper,vessel=vessel,line=d['line'],agent=d['agent'])
 				if created:
 					print('Created new Booking')
 
@@ -121,6 +121,7 @@ def import_data(request):
 				headerDGclassToCheck = [obj.dgclass_col]
 				headerTempToCheck = [obj.temp_col]
 				headerLineToCheck = [obj.line_col]
+				headerAgentToCheck = [obj.agent_col]
 			else:
 				print ('-----ot found File Type ---')
 				headerContainerToCheck = ['CNTR NO.','Conts. No.','CTNR NO','cont', 'Container','container', 'CNTR','Cont no.','Container Nos']
@@ -176,6 +177,7 @@ def import_data(request):
 			ContTemp_index = None
 			ContLine_index =None
 			Shipper_index = None
+			ContAgent_index =None
 
 			for col_index in range(xl_sheet.ncols):
 				vCell = xl_sheet.cell(head_index, col_index).value.__str__().strip()
@@ -203,6 +205,8 @@ def import_data(request):
 						ContTemp_index = col_index
 				if any( header == vCell for header in headerLineToCheck):
 						ContLine_index = col_index
+				if any( header == vCell for header in headerAgentToCheck):
+						ContAgent_index = col_index
 
 			#Make Key(header)
 			keys = [xl_sheet.cell(head_index, col_index).value for col_index in range(xl_sheet.ncols)]
@@ -236,6 +240,8 @@ def import_data(request):
 				keys[ContTemp_index] = 'temp'
 			if ContLine_index != None:
 				keys[ContLine_index] = 'line'
+			if ContAgent_index != None:
+				keys[ContAgent_index] = 'agent'
 
 
 			dict_list = []
@@ -276,7 +282,11 @@ def import_data(request):
 					# if obj.line_col != None or obj.line_col !='':
 					# 	d['line'] = obj.line_default
 					if obj.line_col == None or obj.line_col =='':
-						d['line'] = obj.line_default
+						d['line'] = obj.line_default if obj.line_default != None else ''
+
+					if obj.agent_col == None or obj.agent_col =='':
+						# print (obj.agent_default)
+						d['agent'] = obj.agent_default if obj.agent_default != None else ''
 
 
 			#Adjust data follow TypeIn
@@ -299,7 +309,7 @@ def import_data(request):
 						container_long = d['type'][:2]
 						container_type = d['type'][2:]
 						d['size'] = container_long
-						print (d['type'])
+						# print (d['type'])
 						d['long'] =  d['type'][:2]
 
 						if container_type=='DV':
@@ -345,6 +355,30 @@ def import_data(request):
 						d['type'] = 'DV'
 						d['size'] = '40'
 				    
+					if d['type']=='40ST':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '40'
+
+					if d['type']=='20ST':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '20'
+
+					if d['type']=='40HC':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '40'
+
+					if d['type']=='20RF':
+						d['high'] = '8.6'
+						d['type'] = 'RE'
+						d['size'] = '20'
+
+					if d['type']=='40RF':
+						d['high'] = '9.6'
+						d['type'] = 'RE'
+						d['size'] = '40'
 
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
@@ -357,7 +391,7 @@ def import_data(request):
 			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
 			instance.save()
 			vSlug = instance.slug
-			print (dict_list)
+			# print (dict_list)
 		else:
 			return None
 	else:

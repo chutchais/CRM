@@ -60,6 +60,7 @@
   <thead class="thead-inverse">
     <tr>
       <th></th>
+      <th>Agent</th>
       <th>Line</th>
       <th>Vessel</th>
       <th>Shipper</th>
@@ -84,6 +85,7 @@
               <button type="button" class="btn btn-success btn-sm">New</button>
             {% endif %}
            </td>
+          <td>{{ row.agent }}</td>
           <td>{{ row.line }}</td>
           <td>{{ row.vessel }}</td>
           <td>{{ row.shipper }}</td>

@@ -70,11 +70,11 @@ admin.site.register(Shipper,ShipperAdmin)
 
 class BookingAdmin(admin.ModelAdmin):
     search_fields = ['number','voy','pod','shipper__name','vessel__name','line','description']
-    list_filter = ['line','pod','shipper']
-    list_display = ('number','line','voy','pod','shipper','vessel','description','created_date')
+    list_filter = ['line','agent','pod','shipper']
+    list_display = ('number','line','agent','voy','pod','shipper','vessel','description','created_date')
     list_editable = ()
     fieldsets = [
-        ('Basic Information',{'fields': ['number','slug','line','voy','pod','shipper','vessel','description','status','user']}),
+        ('Basic Information',{'fields': ['number','slug','line','agent','voy','pod','shipper','vessel','description','status','user']}),
     ]
 admin.site.register(Booking,BookingAdmin)
 
