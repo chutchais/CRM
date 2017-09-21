@@ -288,6 +288,10 @@ def import_data(request):
 						# print (obj.agent_default)
 						d['agent'] = obj.agent_default if obj.agent_default != None else ''
 
+					if obj.payment_col == None or obj.payment_col =='':
+						print (obj.payment_default)
+						d['term'] = obj.payment_default if obj.payment_default != None else ''
+
 
 			#Adjust data follow TypeIn
 					#Swap POD (for all)

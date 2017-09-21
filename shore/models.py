@@ -29,6 +29,7 @@ class FileType(models.Model):
 	container_high_col  = models.CharField(max_length=50,blank=True, null=True)
 	pod_col  = models.CharField(max_length=50,blank=True, null=True)
 	payment_col  = models.CharField(max_length=50,blank=True, null=True)
+	payment_default = models.CharField(verbose_name ='Payment default value',max_length=10,blank=True, null=True)
 	dgclass_col  = models.CharField(max_length=50,blank=True, null=True)
 	unno_col  = models.CharField(max_length=50,blank=True, null=True)
 	stowage_col  = models.CharField(max_length=50,blank=True, null=True)
