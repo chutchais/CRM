@@ -38,7 +38,7 @@ class BookingCreateUpdateSerializer (ModelSerializer):
 
 
 class BookingSerializer(ModelSerializer):
-	url = booking_detail_url
+	# url = booking_detail_url
 	shipper = ShipperSerializer()
 	vessel = VesselSerializer()
 	class Meta:
@@ -47,7 +47,7 @@ class BookingSerializer(ModelSerializer):
 		fields = [
 			'id',
 			'number',
-			'url',
+			# 'url',
 			'slug',
 			'line',
 			'agent',
@@ -63,13 +63,13 @@ class BookingSerializer(ModelSerializer):
 
 
 class BookingDetailSerializer(ModelSerializer):
-	url = booking_detail_url
+	# url = booking_detail_url
 	class Meta:
 		model = Booking
 		fields = [
 			'id',
 			'number',
-			'url',
+			# 'url',
 			'slug',
 			'line',
 			'agent',

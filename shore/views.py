@@ -348,7 +348,7 @@ def import_data(request):
 						d['type'] = 'DV'
 
 					if d['type']=='RH':
-						d['type'] = 'DV'
+						d['type'] = 'RE'
 
 					if d['type']=='4510':
 						d['high'] = '9.6'
@@ -401,6 +401,7 @@ def import_data(request):
 
 
 					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']
+					d['voy'] = d['voy'].replace('.0','') if '.0' in d['voy'] else d['voy']
 					d['temp'] = d['temp'].replace('C','')					
 
 			# Save to Shore File

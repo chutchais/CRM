@@ -65,13 +65,13 @@ class ShoreFileSerializer(ModelSerializer):
 			'url',
 			'slug',
 			'description',
-			'status',
 			'created_date',
 			'user',
 			'upload_status',
 			'upload_date',
 			'upload_msg',
-			'item_count'
+			'item_count',
+			'status'
 			]
 
 

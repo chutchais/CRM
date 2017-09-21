@@ -48,7 +48,7 @@ class BookingListAPIView(ListAPIView):
 class BookingDetailAPIView(RetrieveAPIView):
 	queryset= Booking.objects.all()
 	serializer_class = BookingDetailSerializer
-	lookup_field='slug'
+	lookup_field = 'slug'
 	# print ("vessel details")
 
 class BookingDeleteAPIView(DestroyAPIView):
