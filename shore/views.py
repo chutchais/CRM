@@ -50,13 +50,16 @@ def confirm_data(request):
 					print('Created new Booking')
 
 				line = d['line']
+				dg_class = d['dg_class'] if d['dg_class'] != None else d['dg_class']
+				unno = d['unno'] if d['unno'] != None else d['unno']
+				
 
 				container = Container.objects.create(number= d['container'],booking=booking,
 									container_type = d['type'],
 									container_size = d['size'],
 									container_high = d['high'],
-									dg_class = d['dg_class'],
-									unno = d['unno'],
+									dg_class = dg_class,
+									unno = unno,
 									payment = d['term'],
 									draft=True,
 									shorefile= sf)
@@ -261,8 +264,8 @@ def import_data(request):
 				    # Check Container and Booking Exist.
 				    objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
 				    
-				    if headerLineToCheck == headerAgentToCheck:
-				    	d['agent'] = d['line']
+				    # if headerLineToCheck == headerAgentToCheck:
+				    # 	d['agent'] = d['line']
 
 				    if objContBook:
 				    	d['new'] ='No'
@@ -284,13 +287,18 @@ def import_data(request):
 					if obj.line_col == None or obj.line_col =='':
 						d['line'] = obj.line_default if obj.line_default != None else ''
 
+					if headerLineToCheck == headerAgentToCheck:
+						d['agent'] = d['line']
+
 					if obj.agent_col == None or obj.agent_col =='':
 						# print (obj.agent_default)
 						d['agent'] = obj.agent_default if obj.agent_default != None else ''
 
 					if obj.payment_col == None or obj.payment_col =='':
-						print (obj.payment_default)
+						# print (obj.payment_default)
 						d['term'] = obj.payment_default if obj.payment_default != None else ''
+
+
 
 
 			#Adjust data follow TypeIn
@@ -400,7 +408,16 @@ def import_data(request):
 
 
 
-					d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']
+					if 'dg_class' in d.keys():
+						d['dg_class'] = d['dg_class'].replace('.0','') if '.0' in d['dg_class'] else d['dg_class']
+					else:
+						d['dg_class'] =''
+
+					if 'unno' in d.keys():
+						d['unno'] = d['unno'].replace('.0','') if '.0' in d['unno'] else d['unno']
+					else:
+						d['unno'] =''
+
 					d['voy'] = d['voy'].replace('.0','') if '.0' in d['voy'] else d['voy']
 					d['temp'] = d['temp'].replace('C','')					
 

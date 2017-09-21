@@ -39,7 +39,7 @@ class BookingCreateUpdateSerializer (ModelSerializer):
 
 class BookingSerializer(ModelSerializer):
 	# url = booking_detail_url
-	shipper = ShipperSerializer()
+	shipper = ShipperSerializer(allow_null=True)
 	vessel = VesselSerializer()
 	class Meta:
 		model = Booking
