@@ -322,11 +322,19 @@ def import_data(request):
 						container_long = d['type'][:2]
 						container_type = d['type'][2:]
 						d['size'] = container_long
-						# print (d['type'])
+						# print (d['type'],len(d['type']),container_long)
 						d['long'] =  d['type'][:2]
 
 						if container_type=='DV':
 							d['type'] = 'DV'
+							d['high'] = '8.6'
+
+						if container_type=='RE':
+							d['type'] = 'RE'
+							d['high'] = '8.6'
+
+						if container_type=='OT':
+							d['type'] = 'OT'
 							d['high'] = '8.6'
 
 
@@ -414,6 +422,11 @@ def import_data(request):
 						d['high'] = '9.6'
 						d['type'] = 'RE'
 						d['size'] = '40'
+
+					# if d['type']=='20DV':
+					# 	d['high'] = '9.6'
+					# 	d['type'] = 'RE'
+					# 	d['size'] = '40'
 
 					if d['type'].upper() == '20GP':
 						d['high'] = '8.6'
