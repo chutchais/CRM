@@ -398,6 +398,11 @@ def import_data(request):
 						d['type'] = 'RE'
 						d['size'] = '40'
 
+					if d['type'].upper() == '20GP':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '20'
+
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
 
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
