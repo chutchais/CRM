@@ -303,7 +303,8 @@ def import_data(request):
 
 			#Adjust data follow TypeIn
 					#Swap POD (for all)
-					d['pod'] = d['pod'][2:] + d['pod'][:2]
+					if len(d['pod']) == 5:
+						d['pod'] = d['pod'][2:] + d['pod'][:2]
 					
 					
 
@@ -338,12 +339,15 @@ def import_data(request):
 							if container_long =='40' :
 								d['high'] = '9.6'
 
-						if d['term']=='CASH':
+						# print(d['term'],len(d['term']))
+						if d['term']=='CASH' or d['term']=='Y':
 							d['term'] ='Y'
 						else:
 							d['term'] = 'N'
 
 				    # Modify data
+					d['type'] = d['type'].replace('.0','')
+
 					if d['type']=='GP':
 						d['type'] = 'DV'
 						d['high'] = '8.6'
@@ -351,6 +355,14 @@ def import_data(request):
 					if d['type']=='HC':
 						d['high'] = '9.6'
 						d['type'] = 'DV'
+
+					if d['type']=='RE':
+						d['high'] = '9.6'
+						d['type'] = 'RE'
+
+					if d['type']=='RF':
+						d['high'] = '8.6'
+						d['type'] = 'RE'
 
 					if d['type']=='HQ':
 						d['type'] = 'DV'
@@ -361,6 +373,11 @@ def import_data(request):
 					if d['type']=='4510':
 						d['high'] = '9.6'
 						d['type'] = 'DV'
+						d['size'] = '40'
+
+					if d['type']=='4530':
+						d['high'] = '9.6'
+						d['type'] = 'RE'
 						d['size'] = '40'
 
 					if d['type']=='2210':
@@ -402,8 +419,9 @@ def import_data(request):
 						d['high'] = '8.6'
 						d['type'] = 'DV'
 						d['size'] = '20'
-
+					# print(d['type'],len(d['type']))
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
+					d['size'] = d['size'].replace('\'','') 
 
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
 					d['high'] = '8.6' if d['high'] == '86' else d['high']
@@ -424,13 +442,14 @@ def import_data(request):
 						d['unno'] =''
 
 					d['voy'] = d['voy'].replace('.0','') if '.0' in d['voy'] else d['voy']
-					d['temp'] = d['temp'].replace('C','')					
+					d['temp'] = d['temp'].replace('C','')
+					d['temp'] = d['temp'].replace('\'','')					
 
 			# Save to Shore File
 			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
 			instance.save()
 			vSlug = instance.slug
-			print (dict_list)
+			# print (dict_list)
 		else:
 			return None
 	else:
