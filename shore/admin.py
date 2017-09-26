@@ -8,7 +8,8 @@ from .models import (FileType,
 					Vessel,
 					Shipper,
 					Booking,
-					Container)
+					Container,
+                    ContainerType)
 
 from datetime import date
 from django.utils.translation import gettext_lazy as _
@@ -30,6 +31,17 @@ class Containerline(admin.TabularInline):
     #         return elapsed
     #     else:
     #         return ''
+
+class ContainerTypeAdmin(admin.ModelAdmin):
+    search_fields = ['name','description']
+    list_filter = ['status']
+    list_display = ('name','ctype','csize','cHigh','description','modified_date','status')
+    list_editable = ()
+    fieldsets = [
+        ('Basic Information',{'fields': ['name','ctype','csize','chigh','description','status']}),
+    ]
+    
+admin.site.register(ContainerType,ContainerTypeAdmin)
 
 class ShoreFileAdmin(admin.ModelAdmin):
     search_fields = ['name','description']

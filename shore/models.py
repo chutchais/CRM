@@ -240,3 +240,18 @@ def pre_save_container_receiver(sender, instance, *args, **kwargs):
 		instance.slug = create_container_slug(instance)
 
 pre_save.connect(pre_save_container_receiver, sender=Container)
+
+
+class ContainerType(models.Model):
+	name = models.CharField(verbose_name ='Container Type Name',max_length=50,primary_key=True)
+	description = models.CharField(max_length=255,blank=True, null=True)
+	ctype = models.CharField(verbose_name ='Container Type',max_length=5,default='DV')
+	csize = models.CharField(verbose_name ='Container Size',max_length=5,default='20')
+	cHigh = models.CharField(verbose_name ='Container High',max_length=5,default='8.6')
+	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
+	created_date = models.DateTimeField(auto_now_add=True)
+	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
+	user = models.ForeignKey('auth.User',blank=True,null=True)
+	
+	def __str__(self):
+		return self.name
