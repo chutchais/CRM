@@ -302,6 +302,22 @@ def import_data(request):
 
 
 			#Adjust data follow TypeIn
+					#Mapping Customer POD to Our POD (EMC)
+					if len(d['pod']) == 'HKHKG':
+						d['pod']='HKHKG'
+					if len(d['pod']) == 'CNXHK':
+						d['pod']='CNSHK'
+					if len(d['pod']) == 'JPTYO':
+						d['pod']='JPTYO'
+					if len(d['pod']) == 'JPYKH':
+						d['pod']='JPYOK'
+					if len(d['pod']) == 'JPNGY':
+						d['pod']='JPNGO'
+					if len(d['pod']) == 'CNSHG':
+						d['pod']='CNSHA'
+					if len(d['pod']) == 'CNNBO':
+						d['pod']='CNNPO'
+					#-------------------------------------
 					#Swap POD (for all)
 					if len(d['pod']) == 5:
 						d['pod'] = d['pod'][2:] + d['pod'][:2]
