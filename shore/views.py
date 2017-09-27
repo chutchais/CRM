@@ -302,20 +302,22 @@ def import_data(request):
 
 
 			#Adjust data follow TypeIn
-					#Mapping Customer POD to Our POD (EMC)
-					if len(d['pod']) == 'HKHKG':
+					d['high'] ='8.6'
+
+					#Mapping Cus8omer POD to Our POD (EMC)
+					if d['pod'].strip() == 'HKHKG':
 						d['pod']='HKHKG'
-					if len(d['pod']) == 'CNXHK':
+					if d['pod'].strip() == 'CNXHK':
 						d['pod']='CNSHK'
-					if len(d['pod']) == 'JPTYO':
+					if d['pod'].strip() == 'JPTYO':
 						d['pod']='JPTYO'
-					if len(d['pod']) == 'JPYKH':
+					if d['pod'].strip() == 'JPYKH':
 						d['pod']='JPYOK'
-					if len(d['pod']) == 'JPNGY':
+					if d['pod'].strip() == 'JPNGY':
 						d['pod']='JPNGO'
-					if len(d['pod']) == 'CNSHG':
+					if d['pod'].strip() == 'CNSHG':
 						d['pod']='CNSHA'
-					if len(d['pod']) == 'CNNBO':
+					if d['pod'].strip() == 'CNNBO':
 						d['pod']='CNNPO'
 					#-------------------------------------
 					#Swap POD (for all)
