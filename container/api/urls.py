@@ -6,11 +6,13 @@ from .views import (
     ContainerDetailAPIView,
     ContainerCreateAPIView,
     ContainerDeleteAPIView,
-    ContainerUpdateAPIView
+    ContainerUpdateAPIView,
+    ContainerFullAPIView
     )
 
 urlpatterns = [
-	url(r'^$', ContainerListAPIView.as_view(), name='list'),
+	url(r'^$', ContainerFullAPIView.as_view(), name='full'),
+	url(r'^list/$', ContainerListAPIView.as_view(),name='list'),
 	url(r'^create/$', ContainerCreateAPIView.as_view(),name='create'),
 	url(r'^(?P<slug>[\w-]+)/$', ContainerDetailAPIView.as_view(), name='detail'),
 	url(r'^(?P<slug>[\w-]+)/delete/$', ContainerDeleteAPIView.as_view(),name='delete'),

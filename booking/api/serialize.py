@@ -6,8 +6,8 @@ from rest_framework.serializers import (
 
 
 from shore.models import (Booking)
-from shipper.api.serialize import ShipperSerializer
-from vessel.api.serialize import VesselSerializer
+from shipper.api.serialize import ShipperSerializer,ShipperListSerializer
+from vessel.api.serialize import VesselSerializer,VesselListSerializer
 
 booking_detail_url=HyperlinkedIdentityField(
 		view_name='booking-api:detail',
@@ -36,6 +36,22 @@ class BookingCreateUpdateSerializer (ModelSerializer):
 			'description'
 		]
 
+class BookingListSerializer(ModelSerializer):
+	# url = booking_detail_url
+	# shipper = ShipperListSerializer(allow_null=True)
+	# vessel = VesselListSerializer()
+	class Meta:
+		model = Booking
+		# fields ='__all__'
+		fields = [
+			'number',
+			'line',
+			'agent',
+			'voy',
+			# 'vessel',
+			'pod',
+			# 'shipper',
+			]
 
 class BookingSerializer(ModelSerializer):
 	# url = booking_detail_url

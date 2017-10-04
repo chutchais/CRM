@@ -24,6 +24,16 @@ class ShipperCreateUpdateSerializer (ModelSerializer):
 			'description'
 		]
 
+class ShipperListSerializer(ModelSerializer):
+	# url = shipper_detail_url
+	# vessel = BookingVesselSerializer()
+	# shipper = BookingShipperSerializer()
+	class Meta:
+		model = Shipper
+		# fields ='__all__'
+		fields = [
+			'name',
+			]
 
 class ShipperSerializer(ModelSerializer):
 	url = shipper_detail_url

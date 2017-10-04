@@ -25,6 +25,18 @@ class VesselCreateUpdateSerializer (ModelSerializer):
 		]
 
 
+class VesselListSerializer(ModelSerializer):
+	# url = vessel_detail_url
+	# vessel = BookingVesselSerializer()
+	# shipper = BookingShipperSerializer()
+	class Meta:
+		model = Vessel
+		# fields ='__all__'
+		fields = [
+			'name',
+			'code',
+			]
+
 class VesselSerializer(ModelSerializer):
 	url = vessel_detail_url
 	# vessel = BookingVesselSerializer()

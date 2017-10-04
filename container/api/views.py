@@ -30,11 +30,11 @@ from shore.models import Booking
 from shore.models import Container
 from .serialize import (ContainerSerializer,
 						ContainerDetailSerializer,
-						ContainerCreateUpdateSerializer)
+						ContainerCreateUpdateSerializer,
+						ContainerListSerializer)
 
 
-
-class ContainerListAPIView(ListAPIView):
+class ContainerFullAPIView(ListAPIView):
 	queryset = Container.objects.all()
 	serializer_class= ContainerSerializer
 	filter_backends=[SearchFilter,OrderingFilter]
@@ -44,6 +44,8 @@ class ContainerListAPIView(ListAPIView):
 		number = self.request.GET.get("number")
 		booking = self.request.GET.get("booking")
 		draft = self.request.GET.get("draft")
+		f = self.request.GET.get("f")
+		t = self.request.GET.get("t")
 		if number != None and booking == None :
 			queryset_list = Container.objects.filter(
 					Q(number__icontains = number),draft=False )
@@ -57,6 +59,38 @@ class ContainerListAPIView(ListAPIView):
 						Q(booking = b.first()),draft=False)
 		if draft == 'true':
 			queryset_list = Container.objects.filter(draft=True)
+		if f != None and t != None:
+			queryset_list = Container.objects.filter(created_date__range =[f,t])
+
+		return queryset_list
+
+class ContainerListAPIView(ListAPIView):
+	queryset = Container.objects.all()
+	serializer_class= ContainerListSerializer
+	filter_backends=[SearchFilter,OrderingFilter]
+	search_fields =['slug']
+	def get_queryset(self,*args,**kwargs):
+		queryset_list = None#Container.objects.all()
+		number = self.request.GET.get("number")
+		booking = self.request.GET.get("booking")
+		draft = self.request.GET.get("draft")
+		f = self.request.GET.get("f")
+		t = self.request.GET.get("t")
+		if number != None and booking == None :
+			queryset_list = Container.objects.filter(
+					Q(number__icontains = number),draft=False )
+		if number != None and booking !=None :
+			b = Booking.objects.filter(number=booking)
+			if b == None:
+				queryset_list = None
+			else:
+				queryset_list = Container.objects.filter(
+						Q(number__icontains = number) &
+						Q(booking = b.first()),draft=False)
+		if draft == 'true':
+			queryset_list = Container.objects.filter(draft=True)
+		if f != None and t != None:
+			queryset_list = Container.objects.filter(created_date__range =[f,t])
 
 		return queryset_list
 	# pagination_class = PostPageNumberPagination

@@ -6,7 +6,8 @@ from rest_framework.serializers import (
 
 
 from shore.models import (Container)
-from booking.api.serialize import BookingSerializer
+from booking.api.serialize import BookingSerializer,BookingListSerializer
+
 
 container_detail_url=HyperlinkedIdentityField(
 		view_name='container-api:detail',
@@ -14,6 +15,22 @@ container_detail_url=HyperlinkedIdentityField(
 		)
 
 
+class ContainerListSerializer(ModelSerializer):
+	url =  container_detail_url
+	booking = BookingListSerializer()
+	class Meta:
+		model = Container
+		# fields ='__all__'
+		fields = [
+			'number',
+			'url',
+			'container_type',
+			# 'container_size',
+			# 'container_high',
+			'created_date',
+			'shorefile',
+			'booking'
+			]
 
 
 class ContainerSerializer(ModelSerializer):
