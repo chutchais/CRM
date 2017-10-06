@@ -64,8 +64,9 @@ def confirm_data(request):
 									draft=True,
 									shorefile= sf)
 				if d['type'] =='RE':
-					container.temperature = float(d['temp'])
-					container.save()
+					if d['temp'] != None and d['temp']!='':
+						container.temperature = float(d['temp'])
+						container.save()
 
 				print('%s -- %s' % (booking,container))
 
