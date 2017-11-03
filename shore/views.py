@@ -54,7 +54,11 @@ def confirm_data(request):
 				dg_class = d['dg_class'] if d['dg_class'] != None else d['dg_class']
 				unno = d['unno'] if d['unno'] != None else d['unno']
 				
-				newVgm = math.ceil(float(d['vgm']))
+				# print ('VGM is %s -- len %s' % (d['vgm'],len(d['vgm'])))
+				# if d['vgm']=='':
+				# 	newVgm=0
+				# else:
+				# 	newVgm = math.ceil(float(d['vgm']))
 
 				container = Container.objects.create(number= d['container'],booking=booking,
 									container_type = d['type'],
@@ -62,7 +66,7 @@ def confirm_data(request):
 									container_high = d['high'],
 									dg_class = dg_class,
 									unno = unno,
-									vgm = newVgm,
+									# vgm = newVgm,
 									payment = d['term'],
 									draft=True,
 									shorefile= sf)
