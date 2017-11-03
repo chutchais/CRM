@@ -34,6 +34,8 @@ class FileType(models.Model):
 	unno_col  = models.CharField(max_length=50,blank=True, null=True)
 	stowage_col  = models.CharField(max_length=50,blank=True, null=True)
 	temp_col  = models.CharField(max_length=50,blank=True, null=True)
+	vgm_col = models.CharField(max_length=50,blank=True, null=True)
+	update_vgm = models.BooleanField(verbose_name ='Upload VGM',default=False)
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)

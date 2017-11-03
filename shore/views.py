@@ -126,6 +126,7 @@ def import_data(request):
 				headerTempToCheck = [obj.temp_col]
 				headerLineToCheck = [obj.line_col]
 				headerAgentToCheck = [obj.agent_col]
+				headerVGMToCheck = [obj.vgm_col]
 			else:
 				print ('-----ot found File Type ---')
 				headerContainerToCheck = ['CNTR NO.','Conts. No.','CTNR NO','cont', 'Container','container', 'CNTR','Cont no.','Container Nos']
@@ -182,6 +183,7 @@ def import_data(request):
 			ContLine_index =None
 			Shipper_index = None
 			ContAgent_index =None
+			ContVgm_index = None
 
 			for col_index in range(xl_sheet.ncols):
 				vCell = xl_sheet.cell(head_index, col_index).value.__str__().strip()
@@ -211,6 +213,8 @@ def import_data(request):
 						ContLine_index = col_index
 				if any( header == vCell for header in headerAgentToCheck):
 						ContAgent_index = col_index
+				if any( header == vCell for header in headerVGMToCheck):
+						ContVgm_index = col_index
 
 			#Make Key(header)
 			keys = [xl_sheet.cell(head_index, col_index).value for col_index in range(xl_sheet.ncols)]
@@ -249,6 +253,9 @@ def import_data(request):
 			if headerLineToCheck != headerAgentToCheck:
 				if ContAgent_index != None:
 					keys[ContAgent_index] = 'agent'
+
+			if ContVgm_index != None:
+				keys[ContVgm_index] = 'vgm'
 
 
 			dict_list = []
@@ -417,6 +424,11 @@ def import_data(request):
 						d['type'] = 'DV'
 						d['size'] = '40'
 				    
+					if d['type']=='40DV':
+						d['high'] = '8.6'
+						d['type'] = 'DV'
+						d['size'] = '40'
+
 					if d['type']=='40ST':
 						d['high'] = '8.6'
 						d['type'] = 'DV'
@@ -475,7 +487,9 @@ def import_data(request):
 
 					d['voy'] = d['voy'].replace('.0','') if '.0' in d['voy'] else d['voy']
 					d['temp'] = d['temp'].replace('C','')
-					d['temp'] = d['temp'].replace('\'','')					
+					d['temp'] = d['temp'].replace('\'','')		
+
+					# d['vgm'] ='TEXT'			
 
 			# Save to Shore File
 			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
