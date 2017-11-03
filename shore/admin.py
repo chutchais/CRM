@@ -101,6 +101,7 @@ class ContainerAdmin(admin.ModelAdmin):
         ('Basic Information',{'fields': ['number','booking','description','slug']}),
         ('Type',{'fields': ['container_type','container_size','dg_class','temperature']}),
         ('Other',{'fields': ['payment','unno','status']}),
+        ('Weight',{'fields': ['vgm',]}),
         ('Draft',{'fields': ['draft']}),
         ('EDI Upload',{'fields': ['shorefile','upload_status','upload_date','upload_msg']}),
     ]

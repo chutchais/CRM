@@ -31,6 +31,7 @@ def upload(request):
         })
 
 def confirm_data(request):
+	import math
 	slug = request.POST.get('slug', '')
 	rows = request.POST.get('rows', '')
 	sf = ShoreFile.objects.get(slug=slug)
@@ -53,6 +54,7 @@ def confirm_data(request):
 				dg_class = d['dg_class'] if d['dg_class'] != None else d['dg_class']
 				unno = d['unno'] if d['unno'] != None else d['unno']
 				
+				newVgm = math.ceil(float(d['vgm']))
 
 				container = Container.objects.create(number= d['container'],booking=booking,
 									container_type = d['type'],
@@ -60,6 +62,7 @@ def confirm_data(request):
 									container_high = d['high'],
 									dg_class = dg_class,
 									unno = unno,
+									vgm = newVgm,
 									payment = d['term'],
 									draft=True,
 									shorefile= sf)
