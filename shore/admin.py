@@ -15,6 +15,22 @@ from datetime import date
 from django.utils.translation import gettext_lazy as _
 
 
+class FileTypeAdmin(admin.ModelAdmin):
+    search_fields = ['name','description']
+    list_filter = ['status']
+    list_display = ('name','description','update_vgm','modified_date','status')
+    list_editable = ()
+    fieldsets = [
+        ('Basic Information',{'fields': ['name','description',('line_col','line_default'),
+            ('agent_col','agent_default'),
+            'shipper_col','vessel_col','voy_col','booking_col','container_col',
+            'container_type_col','container_size_col','container_high_col','pod_col',
+            ('payment_col','payment_default'),('dgclass_col','unno_col'),
+            'stowage_col','temp_col',
+            ('vgm_col','update_vgm'),'status']}),
+    ]
+    
+admin.site.register(FileType,FileTypeAdmin)
 
 class Containerline(admin.TabularInline):
     model = Container
@@ -107,4 +123,4 @@ class ContainerAdmin(admin.ModelAdmin):
     ]
 admin.site.register(Container,ContainerAdmin)
 
-admin.site.register(FileType)
+# admin.site.register(FileType)
