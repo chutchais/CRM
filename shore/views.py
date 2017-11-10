@@ -54,11 +54,19 @@ def confirm_data(request):
 				dg_class = d['dg_class'] if d['dg_class'] != None else d['dg_class']
 				unno = d['unno'] if d['unno'] != None else d['unno']
 				
-				# print ('VGM is %s -- len %s' % (d['vgm'],len(d['vgm'])))
-				# if d['vgm']=='':
-				# 	newVgm=0
-				# else:
-				# 	newVgm = math.ceil(float(d['vgm']))
+				# To Insert VGM data
+				vgm_kwarg = {}
+				if 'vgm' in d :
+					if d['vgm']=='':
+						newVgm=0
+					else:
+						newVgm = math.ceil(float(d['vgm']))
+					vgm_kwarg ={'vgm':newVgm}
+					print ('VGM data %s' % vgm_kwarg)
+				else:
+					print('No VGM data')
+				# End VGM
+
 
 				container = Container.objects.create(number= d['container'],booking=booking,
 									container_type = d['type'],
@@ -69,7 +77,7 @@ def confirm_data(request):
 									# vgm = newVgm,
 									payment = d['term'],
 									draft=True,
-									shorefile= sf)
+									shorefile= sf,**vgm_kwarg)
 				if d['type'] =='RE':
 					if d['temp'] != None and d['temp']!='':
 						container.temperature = float(d['temp'])
@@ -233,6 +241,7 @@ def import_data(request):
 			# keys[Shipper_index] = 'shipper'
 			keys[Vessel_index] = 'vessel'
 			keys[ContType_index] = 'type'
+
  
 			if Shipper_index != None :
 					keys[Shipper_index] = 'shipper'
