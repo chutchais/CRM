@@ -152,7 +152,7 @@ def main():
         tmpDir = args.directory
         # print (tmpDir)
 
-        fname = 'vgm_setting.json'
+        fname = 'fullout_setting.json'
 
         regex = "Session A - [24 x 80]"
         state_left = win32api.GetKeyState(0x01)  # Left button down = 0 or 1. Button up = -127 or -128
@@ -164,18 +164,18 @@ def main():
         win = WindowMgr()
         win_ins = win.find_window(regex)
 
-        filename="images/vgm.png"
+        # filename="images/fullout.png"
 
         # Finding Location of OCR command
-        fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
-        if os.path.exists(fOCR):
-            print ('Using OCR command on %s' % fOCR )
-            pytesseract.pytesseract.tesseract_cmd = fOCR
+        # fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
+        # if os.path.exists(fOCR):
+        #     print ('Using OCR command on %s' % fOCR )
+        #     pytesseract.pytesseract.tesseract_cmd = fOCR
 
-        fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
-        if os.path.exists(fOCR):
-            print ('Using OCR command on %s' % fOCR )
-            pytesseract.pytesseract.tesseract_cmd = fOCR
+        # fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
+        # if os.path.exists(fOCR):
+        #     print ('Using OCR command on %s' % fOCR )
+        #     pytesseract.pytesseract.tesseract_cmd = fOCR
         #===============================================
         
         print (Style.RESET_ALL + '===Starting Process==', file=stream)
@@ -185,42 +185,42 @@ def main():
             sys.exit()
 
         win.Maximize(win_ins)
-        global vHeighScreen
-        global x
-        global y
-        global w
-        global h
-        global x_capture
-        global y_capture
-        global w_capture
-        global h_capture
+        # global vHeighScreen
+        # global x
+        # global y
+        # global w
+        # global h
+        # global x_capture
+        # global y_capture
+        # global w_capture
+        # global h_capture
 
         (x,y,w,h) =win.set_onTop(win_ins)
-        vHeighScreen = h*0.11
+        # vHeighScreen = h*0.11
 
-        if os.path.isfile(fname) :
-            print (Style.RESET_ALL + 'Found Setting file', file=stream)
-            dict = eval(open(fname).read())
-            x2 = x+dict['x']
-            y2 = y+dict['y']
-            w2 = dict['w']
-            h2 = dict['h']
-        else:
-            print (Style.RESET_ALL +'Not found Setting file' , file=stream)
-            x2 = x
-            y2 = h-vHeighScreen-5
-            w2 = w-x
-            h2 = vHeighScreen/2
+        # if os.path.isfile(fname) :
+        #     print (Style.RESET_ALL + 'Found Setting file', file=stream)
+        #     dict = eval(open(fname).read())
+        #     x2 = x+dict['x']
+        #     y2 = y+dict['y']
+        #     w2 = dict['w']
+        #     h2 = dict['h']
+        # else:
+        #     print (Style.RESET_ALL +'Not found Setting file' , file=stream)
+        #     x2 = x
+        #     y2 = h-vHeighScreen-5
+        #     w2 = w-x
+        #     h2 = vHeighScreen/2
 
-        x_capture = x2
-        y_capture = y2
-        w_capture = w2
-        h_capture = h2
+        # x_capture = x2
+        # y_capture = y2
+        # w_capture = w2
+        # h_capture = h2
 
-        im = pyautogui.screenshot(filename,region=(x_capture,y_capture,w_capture,h_capture))
-        text = pytesseract.image_to_string(Image.open(filename), \
-                    config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
-        print ('Reading value : %s' % text)
+        # im = pyautogui.screenshot(filename,region=(x_capture,y_capture,w_capture,h_capture))
+        # text = pytesseract.image_to_string(Image.open(filename), \
+        #             config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
+        # print ('Reading value : %s' % text)
 
        
         #  Initial -Setup
@@ -239,15 +239,15 @@ def main():
         pyautogui.press('enter')
 
         #3) Now On "CTS order" screen.
-        #Need to input "1" -->  Booking (EMPTY OUT / FULL IN).
-        pyautogui.typewrite('1', interval=secs_between_keys)
+        #Need to input "2" -->  Full Out Order
+        pyautogui.typewrite('2', interval=secs_between_keys)
         pyautogui.press('enter')
 
         # ====Start VGM ======
         from openpyxl import load_workbook
         import io
         import glob
-        file_list = glob.glob('d:\\vgm\\*.xlsx')
+        file_list = glob.glob('d:\\fullout\\*.xlsx')
         print (Fore.GREEN + ('==============================================' ), file=stream)
 
         if len(file_list) == 0 :
@@ -256,9 +256,9 @@ def main():
         else:
             print ('Found %s' % file_list[0] )
 
-        for vgm_file in file_list:
-            print (Fore.GREEN + ('File name : %s ' % vgm_file ), file=stream)                      
-            with open(vgm_file, "rb") as f:
+        for fullout_file in file_list:
+            print (Fore.GREEN + ('File name : %s ' % fullout_file ), file=stream)                      
+            with open(fullout_file, "rb") as f:
                 in_mem_file = io.BytesIO(f.read())
 
             wb2 = load_workbook(in_mem_file, read_only=True,data_only=True)
@@ -268,39 +268,48 @@ def main():
                 print (Fore.GREEN + ('Sheet name : %s ' % ws.title ), file=stream)
                 # Each sheet
                 for index,row in enumerate(ws.iter_rows()) :
+                    if index < 5 :
+                        continue
                     if index == maxRow :
                         break
-                    if index == 0 :
-                        print ('No data for sheet %s' % ws.title)
-                        continue
-                    booking = row[0].value.__str__().strip()
+
+                    # booking = row[0].value.__str__().strip()
+                    booking = ws.title.strip()
                     container = row[1].value.__str__().strip()
-                    vgm = row[2].value.__str__().strip()
-                    liner = row[3].value.__str__().strip()
-                    # Roundup VGM
-                    oldVgm = vgm
-                    vgm=math.ceil(float(vgm))
-                    print ('RoundUp VGM from %s to %s' % (oldVgm,vgm))
-                    # sys.exit()
+                    line = row[11].value.__str__().strip()
+                    agent = row[14].value.__str__().strip()
+                    remark = row[15].value.__str__().strip()
 
-                    print (booking,container,vgm,liner)
-
-                    if booking ==None and container==None:
+                    if container=='None' or len(container) != 11:
+                        # print ('Mis-match %s' % container)
                         continue
+                    print ('%s - %s - %s - %s - %s - %s' % (index,booking,container,line,agent,remark))
+
+                    # F6 to create new Document -- only first Container
+                    if index==6:
+                        create_order(booking,line,agent)
+                        # sys.exit()
+
+                    enter_container(container,remark)
+
+                pyautogui.press('enter',3)
+                # sys.exit()
+
+                    
                     # Processs to Fill VGM for each Container#
                         #Goto Container lits page
-                    enter_booking_container_list (booking)
-                    enter_container(container)
-                    enter_vgm(liner,vgm)
-                    newVgm = enter_extra_vgm()
-                    if newVgm :
-                        print ('New VGM -- Add new VGM')
-                        enter_verify_vgm(liner,vgm)
-                    else:
-                        print ('VGM already Exits -- Modify VGM')
-                        mofify_verify_vgm(liner,vgm)
-                    pyautogui.press('enter',6)
-                    print ('==============================================')
+                    # enter_booking_container_list (booking)
+                    # enter_container(container)
+                    # enter_vgm(liner,vgm)
+                    # newVgm = enter_extra_vgm()
+                    # if newVgm :
+                    #     print ('New VGM -- Add new VGM')
+                    #     enter_verify_vgm(liner,vgm)
+                    # else:
+                    #     print ('VGM already Exits -- Modify VGM')
+                    #     mofify_verify_vgm(liner,vgm)
+                    # pyautogui.press('enter',6)
+                    # print ('==============================================')
                     # sys.exit()
                 # sys.exit()
                     # End Process#
@@ -318,22 +327,31 @@ def main():
         f = open(tmpDir + "log.txt", "w")
         f.write(traceback.format_exc())
 
-def enter_booking_container_list(booking):
+def create_order(booking,line,agent):
     secs_between_keys=0.01
+    pyautogui.press('f6')
     pyautogui.typewrite(booking, interval=secs_between_keys)
-    pyautogui.press('enter')
-    pyautogui.typewrite('2', interval=secs_between_keys)
-    pyautogui.press('enter')
+    pyautogui.press('tab')
+    pyautogui.typewrite(line, interval=secs_between_keys)
+    pyautogui.press('tab')
+    pyautogui.typewrite(agent, interval=secs_between_keys)
     pyautogui.press('enter')
 
-def enter_container(container):
+# def enter_booking_container_list(booking):
+#     secs_between_keys=0.01
+#     pyautogui.typewrite(booking, interval=secs_between_keys)
+#     pyautogui.press('enter')
+#     pyautogui.typewrite('2', interval=secs_between_keys)
+#     pyautogui.press('enter')
+#     pyautogui.press('enter')
+
+def enter_container(container,remark):
     secs_between_keys=0.01
-    pyautogui.hotkey('shift','f2')
-    pyautogui.press('up',2)
-    pyautogui.press('left',15)
     pyautogui.typewrite(container, interval=secs_between_keys)
-    pyautogui.press('enter')
-    pyautogui.typewrite('2', interval=secs_between_keys)
+    pyautogui.press('tab',13)
+    pyautogui.typewrite(remark, interval=secs_between_keys)
+    pyautogui.press('tab',2)
+    pyautogui.typewrite('Y', interval=secs_between_keys)
     pyautogui.press('enter')
 
 def enter_vgm(liner,vgm):
