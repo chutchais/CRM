@@ -235,7 +235,19 @@ def main():
         yStop = False
         # x,y,w,h = win32gui.GetWindowRect(h)
         filename="images/vgm.png"
-        pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
+                # Finding Location of OCR command
+        fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
+        if os.path.exists(fOCR):
+            print ('Using OCR command on %s' % fOCR )
+            pytesseract.pytesseract.tesseract_cmd = fOCR
+
+        fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
+        if os.path.exists(fOCR):
+            print ('Using OCR command on %s' % fOCR )
+            pytesseract.pytesseract.tesseract_cmd = fOCR
+        #===============================================
+
+        # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
         
 
         if os.path.isfile(fname) :

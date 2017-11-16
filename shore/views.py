@@ -326,7 +326,7 @@ def import_data(request):
 
 
 			#Adjust data follow TypeIn
-					# d['high'] ='8.6'
+					d['high'] ='8.6'
 
 					#Mapping Cus8omer POD to Our POD (EMC)
 					if d['pod'].strip() == 'HKHKG':
@@ -369,8 +369,10 @@ def import_data(request):
 
 						if container_type=='DV':
 							d['type'] = 'DV'
-							if not d['high'] :
-								d['high'] = '8.6'
+							d['high'] = '8.6'
+							# print(d['high'])
+							# if not d['high'] :
+							# 	d['high'] = '8.6'
 
 						if container_type=='RE':
 							d['type'] = 'RE'

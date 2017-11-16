@@ -139,6 +139,7 @@ def main():
     import json
     import sys
     from colorama import init, AnsiToWin32,Fore, Back, Style
+    import math
     # import datetime
     init(wrap=False)
     stream = AnsiToWin32(sys.stderr).stream
@@ -164,8 +165,18 @@ def main():
         win_ins = win.find_window(regex)
 
         filename="images/vgm.png"
-        pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
+        # Finding Location of OCR command
+        fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
+        if os.path.exists(fOCR):
+            print ('Using OCR command on %s' % fOCR )
+            pytesseract.pytesseract.tesseract_cmd = fOCR
+
+        fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
+        if os.path.exists(fOCR):
+            print ('Using OCR command on %s' % fOCR )
+            pytesseract.pytesseract.tesseract_cmd = fOCR
+        #===============================================
         
         print (Style.RESET_ALL + '===Starting Process==', file=stream)
         if win_ins == None :
@@ -266,6 +277,12 @@ def main():
                     container = row[1].value.__str__().strip()
                     vgm = row[2].value.__str__().strip()
                     liner = row[3].value.__str__().strip()
+                    # Roundup VGM
+                    oldVgm = vgm
+                    vgm=math.ceil(float(vgm))
+                    print ('RoundUp VGM from %s to %s' % (oldVgm,vgm))
+                    sys.exit()
+
                     print (booking,container,vgm,liner)
 
                     if booking ==None and container==None:
@@ -342,7 +359,7 @@ def enter_extra_vgm():
                 config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
     print ('Reading value %s' % text)
     newVGM = False
-    if 'N' in text:
+    if ('N' in text) or ('I' in text):
         newVGM = True
     pyautogui.press('enter')
     return newVGM
