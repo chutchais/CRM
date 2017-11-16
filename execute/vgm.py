@@ -279,7 +279,9 @@ def main():
                     liner = row[3].value.__str__().strip()
                     # Roundup VGM
                     oldVgm = vgm
-                    vgm=math.ceil(float(vgm))
+                    vgm=math.ceil(float(vgm.replace(',','')))
+                    vgm=vgm.__str__()
+
                     print ('RoundUp VGM from %s to %s' % (oldVgm,vgm))
                     # sys.exit()
 
