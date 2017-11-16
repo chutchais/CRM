@@ -285,7 +285,7 @@ def main():
 
                     print (booking,container,vgm,liner)
 
-                    if booking ==None and container==None:
+                    if booking ==None and container==None or container=='None':
                         continue
                     # Processs to Fill VGM for each Container#
                         #Goto Container lits page
