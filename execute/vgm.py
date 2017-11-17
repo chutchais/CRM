@@ -277,6 +277,10 @@ def main():
                     container = row[1].value.__str__().strip()
                     vgm = row[2].value.__str__().strip()
                     liner = row[3].value.__str__().strip()
+                    container_type = row[4].value.__str__().strip()
+                    container_type = 'DV' if container_type=='None' else container_type
+                    print (container_type)
+                    # sys.exit()
                     # Roundup VGM
                     oldVgm = vgm
                     vgm=math.ceil(float(vgm.replace(',','')))
@@ -294,7 +298,7 @@ def main():
                     enter_booking_container_list (booking)
                     enter_container(container)
                     enter_vgm(liner,vgm)
-                    newVgm = enter_extra_vgm()
+                    newVgm = enter_extra_vgm(container_type)
                     if newVgm :
                         print ('New VGM -- Add new VGM')
                         enter_verify_vgm(liner,vgm)
@@ -349,10 +353,17 @@ def enter_vgm(liner,vgm):
     pyautogui.typewrite('Y', interval=secs_between_keys)
     pyautogui.press('enter')
 
-def enter_extra_vgm():
+def enter_extra_vgm(container_type):
     secs_between_keys=0.01
     pyautogui.typewrite('VGM', interval=secs_between_keys)
-    pyautogui.press('tab',14)
+    if container_type=='RE':
+        pyautogui.press('down',11)
+    else:
+        pyautogui.press('down',9)
+
+    pyautogui.press('tab',1)
+    # pyautogui.press('tab',14)
+
     pyautogui.typewrite('12', interval=secs_between_keys)
     # Ready Y/N on Screen
     filename="images/vgm.png"

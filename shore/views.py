@@ -326,7 +326,7 @@ def import_data(request):
 
 
 			#Adjust data follow TypeIn
-					d['high'] ='8.6'
+					# d['high'] ='8.6' #Comment on Nov 17,2017
 
 					#Mapping Cus8omer POD to Our POD (EMC)
 					if d['pod'].strip() == 'HKHKG':
@@ -369,10 +369,15 @@ def import_data(request):
 
 						if container_type=='DV':
 							d['type'] = 'DV'
-							d['high'] = '8.6'
+							# d['high'] = '8.6'
 							# print(d['high'])
-							# if not d['high'] :
-							# 	d['high'] = '8.6'
+							if 'high' in d.keys():
+								print ('MSC shore - High data %s' % d['high'])
+								
+							else:
+								print ('MSC shore - No High data - set to 8.6')
+								d['high'] = '8.6'
+								
 
 						if container_type=='RE':
 							d['type'] = 'RE'
@@ -398,7 +403,11 @@ def import_data(request):
 						else:
 							d['term'] = 'N'
 
+
+					
+
 				    # Modify data
+					# d['high'] ='8.6' #Add on Nov 17,2017
 					d['type'] = d['type'].replace('.0','')
 
 					if d['type']=='GP':
