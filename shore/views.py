@@ -491,10 +491,20 @@ def import_data(request):
 						d['high'] = '8.6'
 						d['type'] = 'DV'
 						d['size'] = '20'
+
+
+					# Add by Chutchai on Nov 22,2017
+					#if high is not in key , add high
+					if not 'high' in d:
+						print ('Not found high -- add new to 8.6')
+						d['high'] = '8.6'
+					#----------------------------------
+
 					# print(d['type'],len(d['type']))
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
 					d['size'] = d['size'].replace('\'','') 
 
+					print (d['high'])
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
 					d['high'] = '8.6' if d['high'] == '86' else d['high']
 					d['high'] = '9.6' if d['high'] == '96' else d['high']
