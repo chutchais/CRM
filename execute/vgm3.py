@@ -240,7 +240,7 @@ def main():
                     config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
         print ('Reading Status value : %s' % text)
 
-        # sys.exit()
+        sys.exit()
         # -------------------------------------------------------------
 
         if os.path.isfile(fname) :
@@ -415,8 +415,6 @@ def enter_vgm(liner,vgm):
 def enter_extra_vgm(container_type):
     secs_between_keys=0.01
     pyautogui.typewrite('VGM', interval=secs_between_keys)
-
-    sys.exit()
     if container_type=='RE':
         pyautogui.press('down',11)
     else:
