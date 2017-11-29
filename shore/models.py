@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save,post_save
 from django.core.exceptions import ValidationError
 
 # Create your models here.
@@ -59,6 +59,9 @@ class ShoreFile(models.Model):
 	upload_status = models.NullBooleanField(verbose_name ='Upload Status')
 	upload_date = models.DateTimeField(blank=True, null=True)
 	upload_msg = models.CharField(max_length=255,blank=True, null=True)
+	year = models.IntegerField(blank=True,null=True)
+	month = models.IntegerField(blank=True,null=True)
+	day = models.IntegerField(blank=True,null=True)
 	
 	def __str__(self):
 		return self.name
@@ -69,8 +72,25 @@ class ShoreFile(models.Model):
 	def uploaded_count(self):
 		return self.containers.filter(upload_status__isnull = False).count()
 
-	class Meta:
-		ordering = ('-created_date',)
+	# class Meta:
+	# 	ordering = ('-created_date',)
+
+	# def save(self, *args, **kwargs):
+	# 	if not self.b_b:
+	# 		self.year = self.modela.a_b
+	# 	super(ModelB, self).save(*args, **kwargs)
+
+def pre_save_shorefile(sender, instance, *args, **kwargs):
+	# print (instance.created_date.year)
+	if not instance.year :
+		import datetime
+		now = datetime.datetime.now()
+		instance.year = now.year
+		instance.month =  now.month
+		instance.day = now.day
+
+
+pre_save.connect(pre_save_shorefile, sender=ShoreFile)
 
 class Vessel(models.Model):
 	name = models.CharField(verbose_name ='Feeder Vessel',max_length=50)

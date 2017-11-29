@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block title %}
+    Berth Schedule Report
+{% endblock %}
+
+
+{% block form_content %}
+<div class="row">
+    <h3>
+    {{ title }} : {{ date|date:"d M Y"}} <small><a href="{% url 'monthly' year month %}">back</a></small>
+    </h3>
+{{data}}
+
+  <div class="col-xs-6 col-sm-6">
+    <span>Total file : {{total_file}}</span>
+     <table class="table table-hover">
+        <tr>
+           <th>File Type</th>
+           <th>#file</th>
+         </tr>
+              
+              {% for obj in files %}
+                <tr>
+                    <td>{{ obj.filetype }}</td>
+                    <td>{{ obj.number }}</td>
+                </tr>
+              {% endfor %}  
+      </table>
+    </div>
+
+<div class="col-xs-6 col-sm-6">
+    <span>Total container : {{total_container}}</span>
+      <table class="table table-hover">
+        <tr>
+           <th>File Type</th>
+           <th>Line</th>
+           <th>#container</th>
+         </tr>
+              
+              {% for obj in containers %}
+                <tr>
+                    <td>{{ obj.shorefile__filetype }}</td>
+                    <td>{{ obj.booking__line }}</td>
+                    <td>{{ obj.number }}</td>
+                </tr>
+              {% endfor %}  
+      </table>
+    </div>
+</div>
+{% endblock form_content %}

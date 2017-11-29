@@ -61,7 +61,7 @@ admin.site.register(ContainerType,ContainerTypeAdmin)
 
 class ShoreFileAdmin(admin.ModelAdmin):
     search_fields = ['name','description']
-    list_filter = ['status','filetype','created_date']
+    list_filter = ['created_date','status','filetype']
     list_display = ('name','filetype','item_count','uploaded_count','description','modified_date','status','upload_status','upload_date')
     list_editable = ()
     fieldsets = [

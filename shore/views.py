@@ -8,6 +8,68 @@ import django_excel as excel
 import xlrd
 import re
 import datetime
+from django.db.models import Count,Sum,Value, When,Case,IntegerField,CharField
+
+def index(request,year=None,month=None):
+
+	import datetime
+	if not month:
+		today= datetime.date.today()
+		year = today.strftime('%Y')#-%m-%d %H:%M
+		month = today.strftime('%m')
+
+
+	sf = ShoreFile.objects.filter(year=year,month=month)
+	c = Container.objects.filter(shorefile__in = sf)
+	
+	file_by_filetype = sf.values('day').annotate(
+		number=Count('name')
+		)
+
+	container_by_filetype = c.values('shorefile__day').annotate(
+		number=Count('number')
+		)
+	ziped = zip(file_by_filetype,container_by_filetype)
+	context={
+		'title':'Monthly report of '  ,
+		'date': sf[0].created_date,
+		'lists': ziped,
+		'files':file_by_filetype,
+		'total_file':sf.count(),
+		'containers': container_by_filetype,
+		'total_container': c.count(),
+		'year':year,
+		'month':month
+		}
+	return render(
+        request,
+        'daily.html',context)
+
+def daily(request,year,month,day):
+	sf = ShoreFile.objects.filter(year=year,month=month,day=day)
+	c = Container.objects.filter(shorefile__in = sf)
+	
+	file_by_filetype = sf.values('filetype').annotate(
+		number=Count('name')
+		)
+
+	container_by_filetype = c.values('shorefile__filetype','booking__line').annotate(
+		number=Count('number')
+		)
+	context={
+		'title':'Summary Shore Pass file of '  ,
+		'date': sf[0].created_date,
+		'files':file_by_filetype,
+		'total_file':sf.count(),
+		'containers': container_by_filetype,
+		'total_container': c.count(),
+		'year':year,
+		'month':month,
+		'day':day
+		}
+	return render(
+        request,
+        'index.html',context)
 
 # Create your views here.
 def upload(request):

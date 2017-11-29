@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block head %}
+{% endblock head %}
+
+{% block title %}
+    Berth Schedule Report
+{% endblock %}
+
+
+{% block form_content %}
+<div class="row">
+    <h3>
+    {{ title }} : {{ date|date:"M Y"}} 
+    </h3>
+{{data}}
+
+  <div class="col-xs-6 col-sm-6">
+    <span>{{total_file}} file(s) , {{total_container}} container(s)</span>
+     <table class="table table-hover">
+        <tr>
+           <th>Date</th>
+           <th>#file</th>
+           <th>#Container</th>
+         </tr>
+              
+              {% for f,c in lists %}
+                <tr>
+                    <td><a href="{% url 'daily' 2017 11 f.day %}">{{ f.day }}</a></td>
+                    <td>{{ f.number }}</td>
+                    <td>{{ c.number }}</td>
+                </tr>
+              {% endfor %}  
+      </table>
+    </div>
+
+
+</div>
+{% endblock form_content %}
