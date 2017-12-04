@@ -17,11 +17,12 @@ def index(request,year=None,month=None):
 		today= datetime.date.today()
 		year = today.strftime('%Y')#-%m-%d %H:%M
 		month = today.strftime('%m')
-
+		print(year,month,today)
 
 	sf = ShoreFile.objects.filter(year=year,month=month)
 	c = Container.objects.filter(shorefile__in = sf)
-	
+	print(sf.count())
+	#-------By Daily------
 	file_by_filetype = sf.values('day').annotate(
 		number=Count('name')
 		)
@@ -30,6 +31,13 @@ def index(request,year=None,month=None):
 		number=Count('number')
 		)
 	ziped = zip(file_by_filetype,container_by_filetype)
+	# ----------------------
+
+	# By Liner and Service
+	# liner = c.values('booking__line').annotate(
+	# 	number=Count('number')
+	# 	)
+
 	context={
 		'title':'Monthly report of '  ,
 		'date': sf[0].created_date,

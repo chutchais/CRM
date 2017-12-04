@@ -297,6 +297,8 @@ def main():
 
             shore_detail = get_shorefile('shorefile',sf['slug'])
             container_list = shore_detail['containers']
+            print (shore_detail)
+            sys.exit()
             index=0
             for c in container_list:
                 # continue
