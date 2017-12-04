@@ -80,17 +80,17 @@ class ShoreFile(models.Model):
 	# 		self.year = self.modela.a_b
 	# 	super(ModelB, self).save(*args, **kwargs)
 
-def pre_save_shorefile(sender, instance, *args, **kwargs):
-	# print (instance.created_date.year)
-	if not instance.year :
-		import datetime
-		now = datetime.datetime.now()
-		instance.year = now.year
-		instance.month =  now.month
-		instance.day = now.day
+# def pre_save_shorefile(sender, instance, *args, **kwargs):
+# 	# print (instance.created_date.year)
+# 	if not instance.year :
+# 		import datetime
+# 		now = datetime.datetime.now()
+# 		instance.year = now.year
+# 		instance.month =  now.month
+# 		instance.day = now.day
 
 
-pre_save.connect(pre_save_shorefile, sender=ShoreFile)
+# pre_save.connect(pre_save_shorefile, sender=ShoreFile)
 
 class Vessel(models.Model):
 	name = models.CharField(verbose_name ='Feeder Vessel',max_length=50)
