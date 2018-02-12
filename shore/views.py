@@ -430,10 +430,14 @@ def import_data(request):
 						d['term'] ='Y'
 
 					# print (fileTypeIn,fileTypeIn.__str__())
-					if fileTypeIn.__str__() == 'MSC Shore File':
+					# if fileTypeIn.__str__() == 'MSC Shore File' or fileTypeIn.__str__() == 'MSC Shore file (A0)':
+					print(fileTypeIn.__str__().strip())
+					if fileTypeIn.__str__() == 'MSC Shore File' or fileTypeIn.__str__() == 'MSC Shore file (A0)':
+						print ('MSC ')
 						container_long = d['type'][:2]
 						container_type = d['type'][2:]
 						d['size'] = container_long
+						print('Size = %s' % container_long)
 						# print (d['type'],len(d['type']),container_long)
 						d['long'] =  d['type'][:2]
 
@@ -571,6 +575,7 @@ def import_data(request):
 					#----------------------------------
 
 					# print(d['type'],len(d['type']))
+					print (d['size'])
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
 					d['size'] = d['size'].replace('\'','') 
 
