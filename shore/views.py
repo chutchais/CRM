@@ -348,26 +348,82 @@ def import_data(request):
 			regex='^[A-Z]{4}[0-9]{7}$'
 			item_count =0
 			new_count = 0
+
+			change_list =[]
+
 			import ast
 			for row_index in range(head_index+1, xl_sheet.nrows):
 				vContainerData = xl_sheet.cell(row_index, Container_index).value.__str__().strip()
 				vBooingData = xl_sheet.cell(row_index, Booking_index).value.__str__().strip()
+				vVoyData = xl_sheet.cell(row_index, Voy_index).value.__str__().strip()
+				vPodData = xl_sheet.cell(row_index, Pod_index).value.__str__().strip()
+
 				if (vContainerData !='' and re.match(regex,vContainerData)) :
 				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__().strip()
 				         for col_index in range(xl_sheet.ncols)}
-				    # Check Container and Booking Exist.
-				    objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
+				    import copy
+				    c = copy.copy(d)
 				    
-				    # if headerLineToCheck == headerAgentToCheck:
-				    # 	d['agent'] = d['line']
+					
+					# Added by Chutchai on March 7,2018
+			    	# To check Is Booking or POD is changed?
+			    	# print('Voy : %s' % vVoyData )
+			    	#Mapping Cus8omer POD to Our POD (EMC)
+				    if vPodData == 'HKHKG':
+				    	vPodData='HKHKG'
+				    if vPodData == 'CNXHK':
+				    	vPodData='CNSHK'
+				    if vPodData == 'JPTYO':
+				    	vPodData='JPTYO'
+				    if vPodData == 'JPYKH':
+				    	vPodData='JPYOK'
+				    if vPodData == 'JPNGY':
+				    	vPodData='JPNGO'
+				    if vPodData == 'CNSHG':
+				    	vPodData='CNSHA'
+				    if vPodData == 'CNNBO':
+				    	vPodData='CNNPO'
+					#-------------------------------------
+					#Swap POD (for all)
+				    if len(vPodData) == 5:
+				    	vPodData = vPodData[2:] + vPodData[:2]
 
-				    if objContBook:
-				    	d['new'] ='No'
+				    objContVoy = Container.objects.filter(number=vContainerData ,booking__voy=vVoyData)
+				    if objContVoy :
+				    	objCurrVoy = objContVoy.last()
+				    	if objCurrVoy.booking.number != vBooingData or objCurrVoy.booking.pod != vPodData :
+				    		d['new'] ='Yes'
+				    		c['new'] ='Yes'
+				    		new_count+=1
+				    		if objCurrVoy.booking.pod != vPodData:
+				    			c['pod'] ='%s  (old: %s)' % (vPodData,objCurrVoy.booking.pod)
+				    		if objCurrVoy.booking.number != vBooingData :
+				    			c['booking'] = '%s  (old: %s)' % (vBooingData,objCurrVoy.booking.number)
+				    		change_list.append(c)
+				    		print ('Exist change Container %s (%s,%s)-(%s,%s)' % 
+				    			(vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.pod,vBooingData,vPodData))
+				    	else:
+				    		d['new'] ='No'
+				    		c['new'] ='No'
+				    	# 	print ('Exist Container %s (%s,%s)' % (vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.voy))
 				    else:
+				    	# print ('New Container %s' % vContainerData)
+				    	c['new'] ='Yes'
 				    	d['new'] ='Yes'
 				    	new_count+=1
+
+				    # Check Container and Booking Exist.
+				    # objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
+				    # if objContBook:
+				    # 	d['new'] ='No'
+				    # else:
+				    # 	d['new'] ='Yes'
+				    # 	new_count+=1
 				    item_count= item_count+1
 				    dict_list.append(d)
+
+
+
 			# dict_list.append({'container_index':Container_index })
 			# dict_list.append({'booking_index':Booking_index })
 			# print (dict_list)
@@ -431,13 +487,13 @@ def import_data(request):
 
 					# print (fileTypeIn,fileTypeIn.__str__())
 					# if fileTypeIn.__str__() == 'MSC Shore File' or fileTypeIn.__str__() == 'MSC Shore file (A0)':
-					print(fileTypeIn.__str__().strip())
+					# print(fileTypeIn.__str__().strip())
 					if fileTypeIn.__str__() == 'MSC Shore File' or fileTypeIn.__str__() == 'MSC Shore file (A0)':
-						print ('MSC ')
+						# print ('MSC ')
 						container_long = d['type'][:2]
 						container_type = d['type'][2:]
 						d['size'] = container_long
-						print('Size = %s' % container_long)
+						# print('Size = %s' % container_long)
 						# print (d['type'],len(d['type']),container_long)
 						d['long'] =  d['type'][:2]
 
@@ -446,10 +502,11 @@ def import_data(request):
 							# d['high'] = '8.6'
 							# print(d['high'])
 							if 'high' in d.keys():
-								print ('MSC shore - High data %s' % d['high'])
+								# print ('MSC shore - High data %s' % d['high'])
+								pass
 								
 							else:
-								print ('MSC shore - No High data - set to 8.6')
+								# print ('MSC shore - No High data - set to 8.6')
 								d['high'] = '8.6'
 								
 
@@ -570,16 +627,16 @@ def import_data(request):
 					# Add by Chutchai on Nov 22,2017
 					#if high is not in key , add high
 					if not 'high' in d:
-						print ('Not found high -- add new to 8.6')
+						# print ('Not found high -- add new to 8.6')
 						d['high'] = '8.6'
 					#----------------------------------
 
 					# print(d['type'],len(d['type']))
-					print (d['size'])
+					# print (d['size'])
 					d['size'] = d['size'].replace('.0','') if '.0' in d['size'] else d['size']
 					d['size'] = d['size'].replace('\'','') 
 
-					print (d['high'])
+					# print (d['high'])
 					d['high'] = d['high'].replace('.0','') if '.0' in d['high'] else d['high']
 					d['high'] = '8.6' if d['high'] == '86' else d['high']
 					d['high'] = '9.6' if d['high'] == '96' else d['high']
@@ -609,11 +666,13 @@ def import_data(request):
 			instance.save()
 			vSlug = instance.slug
 			# print (dict_list)
+
 		else:
 			return None
 	else:
 		form = UploadFileForm()
 		dict_list = None
+		change_list = None
 		filename = None
 		item_count = None
 		new_count =None
@@ -629,5 +688,6 @@ def import_data(request):
 		'filename' : filename,
 		'total' : item_count,
 		'new' : new_count,
-		'slug': vSlug
+		'slug': vSlug,
+		'changes' :change_list
 		})
