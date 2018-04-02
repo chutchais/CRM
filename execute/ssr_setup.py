@@ -330,13 +330,13 @@ def main():
                             
                             print (x,y,w,h)
                             # print ('Capture on x:%s y:%s -- w:%s h:%s' % (x1,y1,w-x2,y2-y1))
-                            im = pyautogui.screenshot(filename,region=(x2,y2, w-x2-10,20))
+                            im = pyautogui.screenshot(filename,region=(x2,y2, w-x2-10,50))
                             text = pytesseract.image_to_string(Image.open(filename),\
                                             config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:/ ")#
                             data['x'] = x2 - x
                             data['y'] = y2 - y
                             data['w'] = w-x2-10
-                            data['h'] = 20
+                            data['h'] = 50
                             f = open(fname, "w")
                             f.write(str(data))
                             f.close()
