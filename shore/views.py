@@ -357,6 +357,8 @@ def import_data(request):
 				vBooingData = xl_sheet.cell(row_index, Booking_index).value.__str__().strip()
 				vVoyData = xl_sheet.cell(row_index, Voy_index).value.__str__().strip()
 				vPodData = xl_sheet.cell(row_index, Pod_index).value.__str__().strip()
+				vVesselData = xl_sheet.cell(row_index, Vessel_index).value.__str__().strip()
+				# print (vVesselData)
 
 				if (vContainerData !='' and re.match(regex,vContainerData)) :
 				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__().strip()
@@ -388,10 +390,18 @@ def import_data(request):
 				    if len(vPodData) == 5:
 				    	vPodData = vPodData[2:] + vPodData[:2]
 
-				    objContVoy = Container.objects.filter(number=vContainerData ,booking__voy=vVoyData)
+				    # objContVoy = Container.objects.filter(number=vContainerData ,booking__voy=vVoyData)
+				    from datetime import date, timedelta
+				    d7=date.today()-timedelta(days=14)
+				    objContVoy = Container.objects.filter(number=vContainerData,created_date__gte=d7)
+
 				    if objContVoy :
 				    	objCurrVoy = objContVoy.last()
-				    	if objCurrVoy.booking.number != vBooingData or objCurrVoy.booking.pod != vPodData :
+				    	if (objCurrVoy.booking.number != vBooingData or 
+				    		objCurrVoy.booking.pod != vPodData or 
+				    		objCurrVoy.booking.vessel.name != vVesselData or 
+				    		objCurrVoy.booking.voy != vVoyData) :
+
 				    		d['new'] ='Yes'
 				    		c['new'] ='Yes'
 				    		new_count+=1
@@ -399,6 +409,13 @@ def import_data(request):
 				    			c['pod'] ='%s  (old: %s)' % (vPodData,objCurrVoy.booking.pod)
 				    		if objCurrVoy.booking.number != vBooingData :
 				    			c['booking'] = '%s  (old: %s)' % (vBooingData,objCurrVoy.booking.number)
+				    		if objCurrVoy.booking.vessel.name != vVesselData :
+				    			c['vessel'] = '%s  (old: %s)' % (vVesselData,objCurrVoy.booking.vessel.name)
+				    		if objCurrVoy.booking.voy != vVoyData :
+				    			print(vVoyData)
+				    			c['voy'] = '%s  (old: %s)' % (vVoyData,objCurrVoy.booking.voy)
+
+
 				    		change_list.append(c)
 				    		print ('Exist change Container %s (%s,%s)-(%s,%s)' % 
 				    			(vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.pod,vBooingData,vPodData))
