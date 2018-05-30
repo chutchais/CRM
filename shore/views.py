@@ -616,6 +616,13 @@ def import_data(request):
 						d['size'] = '20'
 
 					if d['type']=='40HC':
+						# d['high'] = '8.6'
+						d['high'] = '9.6'
+						d['type'] = 'DV'
+						d['size'] = '40'
+
+					if d['type']=='40GP':
+						# d['high'] = '8.6'
 						d['high'] = '8.6'
 						d['type'] = 'DV'
 						d['size'] = '40'
