@@ -9,7 +9,8 @@ from .models import (FileType,
 					Shipper,
 					Booking,
 					Container,
-                    ContainerType)
+                    ContainerType,
+                    Port)
 
 from datetime import date
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +25,7 @@ class FileTypeAdmin(admin.ModelAdmin):
         ('Basic Information',{'fields': ['name','description',('line_col','line_default'),
             ('agent_col','agent_default'),
             'shipper_col','vessel_col','voy_col','booking_col','container_col',
-            'container_type_col','container_size_col','container_high_col','pod_col',
+            'container_type_col','container_size_col','container_high_col',('pod_col','tsp_col'),
             ('payment_col','payment_default'),('dgclass_col','unno_col'),
             'stowage_col','temp_col',
             ('vgm_col','update_vgm'),'status']}),
@@ -54,7 +55,7 @@ class ContainerTypeAdmin(admin.ModelAdmin):
     list_display = ('name','ctype','csize','cHigh','description','modified_date','status')
     list_editable = ()
     fieldsets = [
-        ('Basic Information',{'fields': ['name','ctype','csize','chigh','description','status']}),
+        ('Basic Information',{'fields': ['name','ctype','csize','cHigh','description','status']}),
     ]
     
 admin.site.register(ContainerType,ContainerTypeAdmin)
@@ -124,3 +125,14 @@ class ContainerAdmin(admin.ModelAdmin):
 admin.site.register(Container,ContainerAdmin)
 
 # admin.site.register(FileType)
+
+
+class PortAdmin(admin.ModelAdmin):
+    search_fields = ['name','description']
+    list_filter = []
+    list_display = ('name','new_port','status','description')
+    list_editable = ()
+    fieldsets = [
+        ('Basic Information',{'fields': ['name','new_port','status','description']}),
+    ]
+admin.site.register(Port,PortAdmin)

@@ -1,9 +1,10 @@
 from django.shortcuts import render,render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 from .forms import UploadFileForm
-from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking)
+from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking,Port)
 import django_excel as excel
 import xlrd
 import re
@@ -212,6 +213,7 @@ def import_data(request):
 				headerLineToCheck = [obj.line_col]
 				headerAgentToCheck = [obj.agent_col]
 				headerVGMToCheck = [obj.vgm_col]
+				headerTspToCheck = [obj.tsp_col]
 			else:
 				print ('-----ot found File Type ---')
 				headerContainerToCheck = ['CNTR NO.','Conts. No.','CTNR NO','cont', 'Container','container', 'CNTR','Cont no.','Container Nos']
@@ -228,6 +230,7 @@ def import_data(request):
 				headerDGclassToCheck = ['IMDG','DG','DG Class']
 				headerTempToCheck = ['Temp','TEMP','Temp.','Set Temp']
 				headerLineToCheck = ['OPR','LINE(NYK&TSK)','Line','LINE']
+				headerTspToCheck = ['TSP 1']
 
 			found_Container = False
 			found_Booking = False
@@ -269,6 +272,7 @@ def import_data(request):
 			Shipper_index = None
 			ContAgent_index =None
 			ContVgm_index = None
+			ContTsp_index = None
 
 			for col_index in range(xl_sheet.ncols):
 				vCell = xl_sheet.cell(head_index, col_index).value.__str__().strip()
@@ -276,6 +280,7 @@ def import_data(request):
 						Voy_index = col_index
 				if any( header == vCell for header in headerPodToCheck):
 						Pod_index = col_index
+						print ('POD on %s' % col_index)
 				if any( header == vCell for header in headerShipperToCheck):
 						Shipper_index = col_index
 				if any( header == vCell for header in headerVesselToCheck):
@@ -301,6 +306,12 @@ def import_data(request):
 				if any( header == vCell for header in headerVGMToCheck):
 						ContVgm_index = col_index
 
+				if headerTspToCheck != '':
+					if any( header == vCell for header in headerTspToCheck):
+						ContTsp_index = col_index
+						print ('TSP on %s' % col_index)
+
+
 			#Make Key(header)
 			keys = [xl_sheet.cell(head_index, col_index).value for col_index in range(xl_sheet.ncols)]
 			#Replace Col to standard name
@@ -312,7 +323,6 @@ def import_data(request):
 			keys[Vessel_index] = 'vessel'
 			keys[ContType_index] = 'type'
 
- 
 			if Shipper_index != None :
 					keys[Shipper_index] = 'shipper'
 
@@ -342,6 +352,12 @@ def import_data(request):
 
 			if ContVgm_index != None:
 				keys[ContVgm_index] = 'vgm'
+			
+			# Add on Sep 11,2018
+			#To support Transhipment port
+
+			if ContTsp_index != None :
+				keys[ContTsp_index] = 'tsp'
 
 
 			dict_list = []
@@ -359,14 +375,28 @@ def import_data(request):
 				vPodData = xl_sheet.cell(row_index, Pod_index).value.__str__().strip()
 				vVesselData = xl_sheet.cell(row_index, Vessel_index).value.__str__().strip()
 				# print (vVesselData)
+				if ContTsp_index != None:
+					vTspData = xl_sheet.cell(row_index, ContTsp_index).value.__str__().strip()
+				else :
+					vTspData = 'None'
+					
 
 				if (vContainerData !='' and re.match(regex,vContainerData)) :
 				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__().strip()
 				         for col_index in range(xl_sheet.ncols)}
 				    import copy
 				    c = copy.copy(d)
-				    
 					
+				    if vTspData != 'None' :
+    					print ('Using new POD from %s to %s' % (vPodData,vTspData))
+				    	vPodData = 	vTspData
+				    	d['pod'] = vTspData
+					
+
+
+				    # d['pod'] = vPodData
+
+
 					# Added by Chutchai on March 7,2018
 			    	# To check Is Booking or POD is changed?
 			    	# print('Voy : %s' % vVoyData )
@@ -389,8 +419,10 @@ def import_data(request):
 					#Swap POD (for all)
 				    if len(vPodData) == 5:
 				    	vPodData = vPodData[2:] + vPodData[:2]
+				    	newPod = pod_convert(vPodData)
+				    	d['pod'] = newPod if vPodData != newPod else vPodData
 
-				    # objContVoy = Container.objects.filter(number=vContainerData ,booking__voy=vVoyData)
+
 				    from datetime import date, timedelta
 				    d7=date.today()-timedelta(days=14)
 				    objContVoy = Container.objects.filter(number=vContainerData,created_date__gte=d7)
@@ -466,30 +498,38 @@ def import_data(request):
 						d['term'] = obj.payment_default if obj.payment_default != None else ''
 
 
+					# if obj.tsp_col != None or obj.tsp_col =='':
+					# 	# print ('Using new POD from %s to %s' % (d['term'], d['tsp']))
+					# 	if d['tsp'] != 'None':
+					# 		d['pod'] = d['tsp']
+    					
 
 
 			#Adjust data follow TypeIn
 					# d['high'] ='8.6' #Comment on Nov 17,2017
+# Comment on Sep 12,2018
+# Process POD on previous process
+					# #Mapping Cus8omer POD to Our POD (EMC)
+					# if d['pod'].strip() == 'HKHKG':
+					# 	d['pod']='HKHKG'
+					# if d['pod'].strip() == 'CNXHK':
+					# 	d['pod']='CNSHK'
+					# if d['pod'].strip() == 'JPTYO':
+					# 	d['pod']='JPTYO'
+					# if d['pod'].strip() == 'JPYKH':
+					# 	d['pod']='JPYOK'
+					# if d['pod'].strip() == 'JPNGY':
+					# 	d['pod']='JPNGO'
+					# if d['pod'].strip() == 'CNSHG':
+					# 	d['pod']='CNSHA'
+					# if d['pod'].strip() == 'CNNBO':
+					# 	d['pod']='CNNPO'
+					# #-------------------------------------
+					# #Swap POD (for all)
+					# if len(d['pod']) == 5:
+					# 	d['pod'] = d['pod'][2:] + d['pod'][:2]
+					
 
-					#Mapping Cus8omer POD to Our POD (EMC)
-					if d['pod'].strip() == 'HKHKG':
-						d['pod']='HKHKG'
-					if d['pod'].strip() == 'CNXHK':
-						d['pod']='CNSHK'
-					if d['pod'].strip() == 'JPTYO':
-						d['pod']='JPTYO'
-					if d['pod'].strip() == 'JPYKH':
-						d['pod']='JPYOK'
-					if d['pod'].strip() == 'JPNGY':
-						d['pod']='JPNGO'
-					if d['pod'].strip() == 'CNSHG':
-						d['pod']='CNSHA'
-					if d['pod'].strip() == 'CNNBO':
-						d['pod']='CNNPO'
-					#-------------------------------------
-					#Swap POD (for all)
-					if len(d['pod']) == 5:
-						d['pod'] = d['pod'][2:] + d['pod'][:2]
 					
 					
 
@@ -715,3 +755,13 @@ def import_data(request):
 		'slug': vSlug,
 		'changes' :change_list
 		})
+
+
+
+def pod_convert(pod):
+	try:
+		p = Port.objects.get(name=pod,status='A')
+		new_pod = p.new_port
+	except ObjectDoesNotExist:
+		new_pod = pod
+	return new_pod
