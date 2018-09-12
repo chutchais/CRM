@@ -387,7 +387,7 @@ def import_data(request):
 				    import copy
 				    c = copy.copy(d)
 					
-				    if vTspData != 'None' :
+				    if len(vTspData) > 0 and vTspData != 'None'   :
     					print ('Using new POD from %s to %s' % (vPodData,vTspData))
 				    	vPodData = 	vTspData
 				    	d['pod'] = vTspData
@@ -421,6 +421,7 @@ def import_data(request):
 				    	vPodData = vPodData[2:] + vPodData[:2]
 				    	newPod = pod_convert(vPodData)
 				    	d['pod'] = newPod if vPodData != newPod else vPodData
+				    	print ('Current POD %s' % d['pod'])
 
 
 				    from datetime import date, timedelta
