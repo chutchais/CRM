@@ -11,7 +11,13 @@
 {% block form_content %}
 <div class="row">
     <h3>
-    {{ title }} : {{ date|date:"d M Y"}} <small><a href="{% url 'monthly' year month %}">back</a></small>
+    {{ title }} : 
+    {% if day == '99' %}
+      {{ date|date:"M Y"}} 
+    {% else %}
+      {{ date|date:"d M Y"}} 
+    {% endif %}
+    <small><a href="{% url 'monthly' year month %}">back</a></small>
     </h3>
 {{data}}
 

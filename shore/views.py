@@ -18,11 +18,11 @@ def index(request,year=None,month=None):
 		today= datetime.date.today()
 		year = today.strftime('%Y')#-%m-%d %H:%M
 		month = today.strftime('%m')
-		print(year,month,today)
+		# print(year,month,today)
 
 	sf = ShoreFile.objects.filter(year=year,month=month)
 	c = Container.objects.filter(shorefile__in = sf)
-	print(sf.count())
+	# print(sf.count())
 	#-------By Daily------
 	file_by_filetype = sf.values('day').annotate(
 		number=Count('name')
@@ -51,11 +51,21 @@ def index(request,year=None,month=None):
 		'month':month
 		}
 	return render(
-        request,
-        'daily.html',context)
+		request,
+		'daily.html',context)
 
 def daily(request,year,month,day):
-	sf = ShoreFile.objects.filter(year=year,month=month,day=day)
+	# print(day,month,year)
+	if day == '99' :
+		# print ('Month Summary')
+		title = 'Month summary of '
+		sf = ShoreFile.objects.filter(year=year,month=month)
+	else :
+		# print ('Month List')
+		title = 'Summary of '
+		sf = ShoreFile.objects.filter(year=year,month=month,day=day)
+	
+	# print (sf.count())
 	c = Container.objects.filter(shorefile__in = sf)
 	
 	file_by_filetype = sf.values('filetype').annotate(
@@ -66,7 +76,7 @@ def daily(request,year,month,day):
 		number=Count('number')
 		)
 	context={
-		'title':'Summary Shore Pass file of '  ,
+		'title':title  ,
 		'date': sf[0].created_date,
 		'files':file_by_filetype,
 		'total_file':sf.count(),
@@ -77,29 +87,29 @@ def daily(request,year,month,day):
 		'day':day
 		}
 	return render(
-        request,
-        'index.html',context)
+		request,
+		'index.html',context)
 
 # Create your views here.
 def upload(request):
-    if request.method == "POST":
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            filehandle = request.FILES['file']
-            book = xlrd.open_workbook(file_contents=filehandle.read())
-            # return excel.make_response(filehandle.get_sheet(), "csv",
-            #                            file_name="download")
-    else:
-        form = UploadFileForm()
-    return render(
-        request,
-        'upload_form.html',
-        {
-            'form': form,
-            'title': 'Excel file upload and download example',
-            'header': ('Please choose any excel file ' +
-                       'from your cloned repository:')
-        })
+	if request.method == "POST":
+		form = UploadFileForm(request.POST, request.FILES)
+		if form.is_valid():
+			filehandle = request.FILES['file']
+			book = xlrd.open_workbook(file_contents=filehandle.read())
+			# return excel.make_response(filehandle.get_sheet(), "csv",
+			#                            file_name="download")
+	else:
+		form = UploadFileForm()
+	return render(
+		request,
+		'upload_form.html',
+		{
+			'form': form,
+			'title': 'Excel file upload and download example',
+			'header': ('Please choose any excel file ' +
+					   'from your cloned repository:')
+		})
 
 def confirm_data(request):
 	import math
@@ -133,7 +143,7 @@ def confirm_data(request):
 					else:
 						newVgm = math.ceil(float(d['vgm']))
 					vgm_kwarg ={'vgm':newVgm}
-					print ('VGM data %s' % vgm_kwarg)
+					# print ('VGM data %s' % vgm_kwarg)
 				else:
 					print('No VGM data')
 				# End VGM
@@ -179,9 +189,9 @@ def import_data(request):
 			# sheet_names = book.sheet_names()
 			# print (sheet_names)
 			xl_sheet = book.sheet_by_index(0)
-			print ('Sheet name: %s' % xl_sheet.name)
-			print ('Total row %s' % xl_sheet.nrows )
-			print ('Total col %s' % xl_sheet.ncols)
+			# print ('Sheet name: %s' % xl_sheet.name)
+			# print ('Total row %s' % xl_sheet.nrows )
+			# print ('Total col %s' % xl_sheet.ncols)
 
 			#Find First row in sheet
 			# get Shore File Type
@@ -196,7 +206,7 @@ def import_data(request):
 			
 
 			if obj:
-				print ('-----Using File Type Configuration---')
+				# print ('-----Using File Type Configuration---')
 				headerContainerToCheck = [obj.container_col]
 				headerBookingToCheck = [obj.booking_col]
 				headerVoyToCheck =[obj.voy_col]
@@ -215,7 +225,7 @@ def import_data(request):
 				headerVGMToCheck = [obj.vgm_col]
 				headerTspToCheck = [obj.tsp_col]
 			else:
-				print ('-----ot found File Type ---')
+				# print ('-----ot found File Type ---')
 				headerContainerToCheck = ['CNTR NO.','Conts. No.','CTNR NO','cont', 'Container','container', 'CNTR','Cont no.','Container Nos']
 				headerBookingToCheck = ['Booking No.','BOOKING NO','Booking No.','Bkg','Booking','BKG','BOOKING','BKG NO','Bkg','BK Number']
 				headerVoyToCheck =['Voyage','VOY','Voy.','Voy. ','Voy','voy','Feeder Voyage']
@@ -244,15 +254,15 @@ def import_data(request):
 						Container_index = col_index
 						Container_col_name = vCell
 						found_Container = True
-						print('Header on row %s' % row_index)
-						print ('Container data on col %s' % Container_index )
+						# print('Header on row %s' % row_index)
+						# print ('Container data on col %s' % Container_index )
 					
 					if any(header in vCell for header in headerBookingToCheck):
 						head_index = row_index
 						Booking_index = col_index
 						Booking_col_name = vCell
 						found_Booking = True
-						print ('Booking data on col %s' % Booking_index )
+						# print ('Booking data on col %s' % Booking_index )
 											#VOY
 
 					
@@ -280,7 +290,7 @@ def import_data(request):
 						Voy_index = col_index
 				if any( header == vCell for header in headerPodToCheck):
 						Pod_index = col_index
-						print ('POD on %s' % col_index)
+						# print ('POD on %s' % col_index)
 				if any( header == vCell for header in headerShipperToCheck):
 						Shipper_index = col_index
 				if any( header == vCell for header in headerVesselToCheck):
@@ -309,7 +319,7 @@ def import_data(request):
 				if headerTspToCheck != '':
 					if any( header == vCell for header in headerTspToCheck):
 						ContTsp_index = col_index
-						print ('TSP on %s' % col_index)
+						# print ('TSP on %s' % col_index)
 
 
 			#Make Key(header)
@@ -382,95 +392,95 @@ def import_data(request):
 					
 
 				if (vContainerData !='' and re.match(regex,vContainerData)) :
-				    d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__().strip()
-				         for col_index in range(xl_sheet.ncols)}
-				    import copy
-				    c = copy.copy(d)
+					d = {keys[col_index]: xl_sheet.cell(row_index, col_index).value.__str__().strip()
+						 for col_index in range(xl_sheet.ncols)}
+					import copy
+					c = copy.copy(d)
 					
-				    if len(vTspData) > 0 and vTspData != 'None'   :
-    					print ('Using new POD from %s to %s' % (vPodData,vTspData))
-				    	vPodData = 	vTspData
-				    	d['pod'] = vTspData
+					if len(vTspData) > 0 and vTspData != 'None'   :
+						# print ('Using new POD from %s to %s' % (vPodData,vTspData))
+						vPodData = 	vTspData
+						d['pod'] = vTspData
 					
 
 
-				    # d['pod'] = vPodData
+					# d['pod'] = vPodData
 
 
 					# Added by Chutchai on March 7,2018
-			    	# To check Is Booking or POD is changed?
-			    	# print('Voy : %s' % vVoyData )
-			    	#Mapping Cus8omer POD to Our POD (EMC)
-				    if vPodData == 'HKHKG':
-				    	vPodData='HKHKG'
-				    if vPodData == 'CNXHK':
-				    	vPodData='CNSHK'
-				    if vPodData == 'JPTYO':
-				    	vPodData='JPTYO'
-				    if vPodData == 'JPYKH':
-				    	vPodData='JPYOK'
-				    if vPodData == 'JPNGY':
-				    	vPodData='JPNGO'
-				    if vPodData == 'CNSHG':
-				    	vPodData='CNSHA'
-				    if vPodData == 'CNNBO':
-				    	vPodData='CNNPO'
+					# To check Is Booking or POD is changed?
+					# print('Voy : %s' % vVoyData )
+					#Mapping Cus8omer POD to Our POD (EMC)
+					if vPodData == 'HKHKG':
+						vPodData='HKHKG'
+					if vPodData == 'CNXHK':
+						vPodData='CNSHK'
+					if vPodData == 'JPTYO':
+						vPodData='JPTYO'
+					if vPodData == 'JPYKH':
+						vPodData='JPYOK'
+					if vPodData == 'JPNGY':
+						vPodData='JPNGO'
+					if vPodData == 'CNSHG':
+						vPodData='CNSHA'
+					if vPodData == 'CNNBO':
+						vPodData='CNNPO'
 					#-------------------------------------
 					#Swap POD (for all)
-				    if len(vPodData) == 5:
-				    	vPodData = vPodData[2:] + vPodData[:2]
-				    	newPod = pod_convert(vPodData)
-				    	d['pod'] = newPod if vPodData != newPod else vPodData
-				    	print ('Current POD %s' % d['pod'])
+					if len(vPodData) == 5:
+						vPodData = vPodData[2:] + vPodData[:2]
+						newPod = pod_convert(vPodData)
+						d['pod'] = newPod if vPodData != newPod else vPodData
+						# print ('Current POD %s' % d['pod'])
 
 
-				    from datetime import date, timedelta
-				    d7=date.today()-timedelta(days=14)
-				    objContVoy = Container.objects.filter(number=vContainerData,created_date__gte=d7)
+					from datetime import date, timedelta
+					d7=date.today()-timedelta(days=14)
+					objContVoy = Container.objects.filter(number=vContainerData,created_date__gte=d7)
 
-				    if objContVoy :
-				    	objCurrVoy = objContVoy.last()
-				    	if (objCurrVoy.booking.number != vBooingData or 
-				    		objCurrVoy.booking.pod != vPodData or 
-				    		objCurrVoy.booking.vessel.name != vVesselData or 
-				    		objCurrVoy.booking.voy != vVoyData) :
+					if objContVoy :
+						objCurrVoy = objContVoy.last()
+						if (objCurrVoy.booking.number != vBooingData or 
+							objCurrVoy.booking.pod != vPodData or 
+							objCurrVoy.booking.vessel.name != vVesselData or 
+							objCurrVoy.booking.voy != vVoyData) :
 
-				    		d['new'] ='Yes'
-				    		c['new'] ='Yes'
-				    		new_count+=1
-				    		if objCurrVoy.booking.pod != vPodData:
-				    			c['pod'] ='%s  (old: %s)' % (vPodData,objCurrVoy.booking.pod)
-				    		if objCurrVoy.booking.number != vBooingData :
-				    			c['booking'] = '%s  (old: %s)' % (vBooingData,objCurrVoy.booking.number)
-				    		if objCurrVoy.booking.vessel.name != vVesselData :
-				    			c['vessel'] = '%s  (old: %s)' % (vVesselData,objCurrVoy.booking.vessel.name)
-				    		if objCurrVoy.booking.voy != vVoyData :
-				    			print(vVoyData)
-				    			c['voy'] = '%s  (old: %s)' % (vVoyData,objCurrVoy.booking.voy)
+							d['new'] ='Yes'
+							c['new'] ='Yes'
+							new_count+=1
+							if objCurrVoy.booking.pod != vPodData:
+								c['pod'] ='%s  (old: %s)' % (vPodData,objCurrVoy.booking.pod)
+							if objCurrVoy.booking.number != vBooingData :
+								c['booking'] = '%s  (old: %s)' % (vBooingData,objCurrVoy.booking.number)
+							if objCurrVoy.booking.vessel.name != vVesselData :
+								c['vessel'] = '%s  (old: %s)' % (vVesselData,objCurrVoy.booking.vessel.name)
+							if objCurrVoy.booking.voy != vVoyData :
+								# print(vVoyData)
+								c['voy'] = '%s  (old: %s)' % (vVoyData,objCurrVoy.booking.voy)
 
 
-				    		change_list.append(c)
-				    		print ('Exist change Container %s (%s,%s)-(%s,%s)' % 
-				    			(vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.pod,vBooingData,vPodData))
-				    	else:
-				    		d['new'] ='No'
-				    		c['new'] ='No'
-				    	# 	print ('Exist Container %s (%s,%s)' % (vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.voy))
-				    else:
-				    	# print ('New Container %s' % vContainerData)
-				    	c['new'] ='Yes'
-				    	d['new'] ='Yes'
-				    	new_count+=1
+							change_list.append(c)
+							# print ('Exist change Container %s (%s,%s)-(%s,%s)' % 
+							# 	(vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.pod,vBooingData,vPodData))
+						else:
+							d['new'] ='No'
+							c['new'] ='No'
+						# 	print ('Exist Container %s (%s,%s)' % (vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.voy))
+					else:
+						# print ('New Container %s' % vContainerData)
+						c['new'] ='Yes'
+						d['new'] ='Yes'
+						new_count+=1
 
-				    # Check Container and Booking Exist.
-				    # objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
-				    # if objContBook:
-				    # 	d['new'] ='No'
-				    # else:
-				    # 	d['new'] ='Yes'
-				    # 	new_count+=1
-				    item_count= item_count+1
-				    dict_list.append(d)
+					# Check Container and Booking Exist.
+					# objContBook = Container.objects.filter(number=vContainerData,booking__number=vBooingData)
+					# if objContBook:
+					# 	d['new'] ='No'
+					# else:
+					# 	d['new'] ='Yes'
+					# 	new_count+=1
+					item_count= item_count+1
+					dict_list.append(d)
 
 
 
@@ -503,7 +513,7 @@ def import_data(request):
 					# 	# print ('Using new POD from %s to %s' % (d['term'], d['tsp']))
 					# 	if d['tsp'] != 'None':
 					# 		d['pod'] = d['tsp']
-    					
+						
 
 
 			#Adjust data follow TypeIn
@@ -595,7 +605,7 @@ def import_data(request):
 
 					
 
-				    # Modify data
+					# Modify data
 					# d['high'] ='8.6' #Add on Nov 17,2017
 					d['type'] = d['type'].replace('.0','')
 
@@ -640,7 +650,7 @@ def import_data(request):
 						d['high'] = '8.6'
 						d['type'] = 'DV'
 						d['size'] = '40'
-				    
+					
 					if d['type']=='40DV':
 						d['high'] = '8.6'
 						d['type'] = 'DV'

@@ -11,7 +11,8 @@
 {% block form_content %}
 <div class="row">
     <h3>
-    {{ title }} : {{ date|date:"M Y"}} 
+    {{ title }} : {{ date|date:"M Y"}}  
+    <small> | <a href="{% url 'daily' year month '99' %}">Monthly summary</a></small>
     </h3>
 {{data}}
 
