@@ -401,6 +401,12 @@ def import_data(request):
 						# print ('Using new POD from %s to %s' % (vPodData,vTspData))
 						vPodData = 	vTspData
 						d['pod'] = vTspData
+
+					# if int(d['booking'])>0:
+					# print ('Booking %s' % d['booking'].replace('.0',''))
+					# By CHutchai on Sep 28,2018
+					# To remove '.0' out from booking in case booking is numeric
+					d['booking'] = d['booking'].replace('.0','')
 					
 
 
@@ -731,8 +737,9 @@ def import_data(request):
 						d['unno'] =''
 
 					d['voy'] = d['voy'].replace('.0','') if '.0' in d['voy'] else d['voy']
-					d['temp'] = d['temp'].replace('C','')
-					d['temp'] = d['temp'].replace('\'','')		
+					if d['temp']:
+						d['temp'] = d['temp'].replace('C','')
+						d['temp'] = d['temp'].replace('\'','')		
 
 					# d['vgm'] ='TEXT'			
 
