@@ -151,12 +151,34 @@ def main():
             print (Fore.RED + ('-Not found any pending shore file' ), file=stream)
             sys.exit()
 
-        print (Fore.GREEN + ('-Found %s files' % len(shoreAPI) ), file=stream)
+        # print (Fore.GREEN + ('-Found %s files' % len(shoreAPI) ), file=stream)
         # print(Style.RESET_ALL)
 
+        print (Fore.GREEN + ('Found %s files are ready to load' % len(shoreAPI) ), file=stream)
+        print (Fore.GREEN + ('-----------------------------------------' ), file=stream)
+
+
+        findex=1
+        for sf in shoreAPI:
+            shoreFileName = sf['filename'].rsplit('/',1)[1]
+            print (Fore.YELLOW +('%s ) %s' % (findex,shoreFileName)), file=stream)
+            findex=findex+1
+
+        # print(Style.RESET_ALL)
+        findexStr = input("Select file to process? ")
+
+        if findexStr=='q' or findexStr=='Q':
+            print (Fore.GREEN + ('Goodbye' ), file=stream)
+            sys.exit()
+        fSelectedIndex = int(findexStr)
+        print (Fore.YELLOW + ('Your selected file is %s' % shoreAPI[fSelectedIndex-1]['filename'].rsplit('/',1)[1] ), file=stream)
+        sf = shoreAPI[fSelectedIndex-1]
+        # print(Style.RESET_ALL)
+        # print (sf['filename'])
+        # sys.exit()
         # Print List of shore files
-        for f in shoreAPI:
-            print (Fore.YELLOW + ('%s - %s' % (f['name'],f['filetype'])), file=stream)
+        # for f in shoreAPI:
+        #     print (Fore.YELLOW + ('%s - %s' % (f['name'],f['filetype'])), file=stream)
 
 
 
@@ -283,7 +305,8 @@ def main():
 
         # for shore_file in file_list:
 
-        for sf in shoreAPI:
+        # for sf in shoreAPI:
+        if sf :
             print (Fore.GREEN + ('Working on : %s ' % sf['name'] ), file=stream)                   
             
             # Open Log files
@@ -292,13 +315,24 @@ def main():
 
 
             filename="images/message.png"
-            pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
+            # Finding Location of OCR command
+            fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
+            if os.path.exists(fOCR):
+                # print ('Using OCR command on %s' % fOCR )
+                pytesseract.pytesseract.tesseract_cmd = fOCR
+
+            fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
+            if os.path.exists(fOCR):
+                # print ('Using OCR command on %s' % fOCR )
+                pytesseract.pytesseract.tesseract_cmd = fOCR
+            #===============================================
+            # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
 
 
             shore_detail = get_shorefile('shorefile',sf['slug'])
             container_list = shore_detail['containers']
-            print (shore_detail)
-            sys.exit()
+            # print (shore_detail)
+            # sys.exit()
             index=0
             for c in container_list:
                 # continue
@@ -426,7 +460,18 @@ def main():
 
 def ctcs_create_booking(booking,line,agent,vBookingMode,ContainerSuccess):
     filename="images/booking.png"
-    pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
+    # Finding Location of OCR command
+    fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
+    if os.path.exists(fOCR):
+        # print ('Using OCR command on %s' % fOCR )
+        pytesseract.pytesseract.tesseract_cmd = fOCR
+
+    fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
+    if os.path.exists(fOCR):
+        # print ('Using OCR command on %s' % fOCR )
+        pytesseract.pytesseract.tesseract_cmd = fOCR
+    #===============================================
+    # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
     secs_between_keys=0.01
     global vBookingCreatePage
     ################Goto Create Order Page########################
@@ -488,7 +533,18 @@ def ctcs_create_container(vContainerMode ,container,shipper,vessel_code, \
                         voy,pod,cash,lg,hg,ctype,booking_id,dg_class,unno,temperature,slug):
 
     filename="images/container.png"
-    pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
+# Finding Location of OCR command
+    fOCR ='C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
+    if os.path.exists(fOCR):
+        # print ('Using OCR command on %s' % fOCR )
+        pytesseract.pytesseract.tesseract_cmd = fOCR
+
+    fOCR ='C:/Program Files/Tesseract-OCR/tesseract.exe'
+    if os.path.exists(fOCR):
+        # print ('Using OCR command on %s' % fOCR )
+        pytesseract.pytesseract.tesseract_cmd = fOCR
+    #===============================================
+    # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
     secs_between_keys=0.01
     global vBookingCreatePage
     vBookingCreatePage = False 
