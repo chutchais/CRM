@@ -169,7 +169,19 @@ def confirm_data(request):
 		sf.status='A'
 		sf.save()
 		print('Confirm Done')
-	return HttpResponseRedirect(reverse('upload'))
+	# return HttpResponseRedirect(reverse('upload'))
+		form = UploadFileForm()
+	return render(
+		request,
+		'upload_form.html',
+		{
+		'form': form,
+		'title': 'Import excel data into database',
+		'header': 'Please upload Shore xls file:',
+		'slug': slug,
+		'completed' : True
+		})
+
 
 def delete_data(request):
 	slug = request.POST.get('slug', '')
@@ -783,3 +795,33 @@ def pod_convert(pod):
 	except ObjectDoesNotExist:
 		new_pod = pod
 	return new_pod
+
+
+def export_booking_csv(request):
+	import csv
+	slug = request.POST.get('slug', '')
+
+	print ('Export Slug %s' % slug)
+	if slug:
+		sf = ShoreFile.objects.get(slug=slug)
+	else :
+		return None
+
+	response = HttpResponse(content_type='text/csv')
+	response['Content-Disposition'] = 'attachment; filename="%s.csv"' % sf.name
+
+	writer = csv.writer(response)
+	writer.writerow(['shipper_name','line','size','hight','type','unit',
+						'vessel_code','vessel_name','voy_out','booking','spod','pod','status',
+						'temperature','imo','un','payment','vgm','iso','gross_weight','seal','stow','ow_hight','ow_left','ow_right','remark'])
+
+	# users = User.objects.all().values_list('username', 'first_name', 'last_name', 'email')
+	# for user in users:
+	#     writer.writerow(user)
+	cons = sf.containers.all().values_list('booking__shipper__name','booking__line','container_size','container_high','container_type',
+							'number','booking__vessel__code','booking__vessel__name','booking__voy','booking__number',
+							'booking__pod','booking__pod','status','temperature','dg_class','unno','payment','vgm')
+	for c in cons :
+		writer.writerow(c)
+
+	return response

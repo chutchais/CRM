@@ -26,13 +26,25 @@
         </p>
     {% endif %}
 
-    <form action="" enctype="multipart/form-data"  method="post">
+    <form action="{% url 'upload' %}" enctype="multipart/form-data"  method="post">
         <table>
             {{ form.as_table }}
         </table>
         {% csrf_token %}
         <input type="submit" value="Upload and Verify">
     </form>
+
+
+     <!-- Export to CSV file -->
+    {% if completed  %}
+    <h3>{{slug}}</h3>
+    <form method="POST" action="{% url 'export_csv' %}">
+      <input type="hidden" name="slug" value="{{ slug }}">
+      {% csrf_token %}
+      <input type="submit" value="Export CSV">
+    </form>
+    {% endif %}
+    <!-- End if -->
    
 
    {% if filename != None %}
@@ -42,18 +54,21 @@
         </small>
     </h2>
 
-    <form method="POST" action="confirm/">
+    <form method="POST" action="{% url 'confirm' %}">
       <input type="hidden" name="slug" value="{{ slug }}">
       <input type="hidden" name="rows" value="{{ rows }}">
       {% csrf_token %}
       <input type="submit" value="Confirm">
     </form>
 
-    <form method="POST" action="delete/">
+    <form method="POST" action="{% url 'delete' %}">
       <input type="hidden" name="slug" value="{{ slug }}">
       {% csrf_token %}
       <input type="submit" value="Delete">
     </form>
+
+
+   
 
 
   {% if changes %}
