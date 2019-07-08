@@ -116,6 +116,7 @@ def confirm_data(request):
 	slug = request.POST.get('slug', '')
 	rows = request.POST.get('rows', '')
 	sf = ShoreFile.objects.get(slug=slug)
+	print ('Confirm - Data')
 	if slug:
 		import ast
 		datas = ast.literal_eval(rows)
@@ -804,6 +805,7 @@ def export_booking_csv(request):
 	print ('Export Slug %s' % slug)
 	if slug:
 		sf = ShoreFile.objects.get(slug=slug)
+		print(sf.containers)
 	else :
 		return None
 
@@ -812,16 +814,21 @@ def export_booking_csv(request):
 
 	writer = csv.writer(response)
 	writer.writerow(['shipper_name','line','size','hight','type','unit',
-						'vessel_code','vessel_name','voy_out','booking','spod','pod','status',
-						'temperature','imo','un','payment','vgm','iso','gross_weight','seal','stow','ow_hight','ow_left','ow_right','remark'])
+						'vessel_code','vessel_name','voy_out','booking','spod','pod',
+						'temperature','imo','un','payment','vgm','status','iso','gross_weight','seal',
+						'stow','ow_hight','ow_left','ow_right','remark'])
 
 	# users = User.objects.all().values_list('username', 'first_name', 'last_name', 'email')
 	# for user in users:
 	#     writer.writerow(user)
 	cons = sf.containers.all().values_list('booking__shipper__name','booking__line','container_size','container_high','container_type',
 							'number','booking__vessel__code','booking__vessel__name','booking__voy','booking__number',
-							'booking__pod','booking__pod','status','temperature','dg_class','unno','payment','vgm')
+							'booking__pod','booking__pod','temperature','dg_class','unno','payment','vgm')
 	for c in cons :
+		c = list(c)
+		c.append('F')
+		c = tuple(c)
+		print(c)
 		writer.writerow(c)
 
 	return response

@@ -20,7 +20,7 @@ from django.conf.urls import include, url
 from .views import upload,import_data,confirm_data,delete_data,index,daily,export_booking_csv
 
 urlpatterns = [
-    url(r'^$',import_data ,name=''),
+    url(r'^$',import_data ,name='upload'),
     url(r'^report/(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$',daily ,name='daily'),
     url(r'^report/(?P<year>[0-9]{4})/(?P<month>[0-9]+)/$',index ,name='monthly'),
     url(r'^report/$',index ,name='index'),
