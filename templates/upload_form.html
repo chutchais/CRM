@@ -77,6 +77,7 @@
   <thead class="thead-inverse">
     <tr>
       <th></th>
+      <th>Terminal</th>
       <th>Agent</th>
       <th>Line</th>
       <th>Vessel</th>
@@ -96,6 +97,7 @@
               <button type="button" class="btn btn-success btn-sm">New</button>
             {% endif %}
            </td>
+           <td>{{ row.terminal }}</td>
           <td>{{ row.agent }}</td>
           <td>{{ row.line }}</td>
           <td>{{ row.vessel }}</td>
@@ -119,6 +121,7 @@
   <thead class="thead-inverse">
     <tr>
       <th></th>
+      <th>Terminal</th>
       <th>Agent</th>
       <th>Line</th>
       <th>Vessel</th>
@@ -135,6 +138,7 @@
       <th>Temp</th>
       <th>Payment</th>
       <th>VGM</th>
+      <th>Origin</th>
     </tr>
   </thead>
   <tbody>
@@ -145,6 +149,7 @@
               <button type="button" class="btn btn-success btn-sm">New</button>
             {% endif %}
            </td>
+           <td>{{ row.terminal }}</td>
           <td>{{ row.agent }}</td>
           <td>{{ row.line }}</td>
           <td>{{ row.vessel }}</td>
@@ -161,7 +166,7 @@
           <td>{{ row.temp }}</td>
           <td>{{ row.term }}</td>
           <td>{{ row.vgm }}</td>
-
+          <td>{{ row.origin }}</td>
         </tr>
         
     {% endfor %}    

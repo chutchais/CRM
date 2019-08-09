@@ -10,10 +10,16 @@ from .models import (FileType,
 					Booking,
 					Container,
                     ContainerType,
-                    Port)
+                    Port,
+                    Origin)
 
 from datetime import date
 from django.utils.translation import gettext_lazy as _
+
+class Originline(admin.TabularInline):
+    model = Origin
+    fields = ('name','description')
+    extra = 0
 
 
 class FileTypeAdmin(admin.ModelAdmin):
@@ -30,6 +36,7 @@ class FileTypeAdmin(admin.ModelAdmin):
             'stowage_col','temp_col',
             ('vgm_col','update_vgm'),'status']}),
     ]
+    inlines=[Originline]
     
 admin.site.register(FileType,FileTypeAdmin)
 
@@ -62,11 +69,11 @@ admin.site.register(ContainerType,ContainerTypeAdmin)
 
 class ShoreFileAdmin(admin.ModelAdmin):
     search_fields = ['name','description']
-    list_filter = ['created_date','status','filetype']
-    list_display = ('name','filetype','item_count','uploaded_count','description','created_date','status','upload_status','upload_date')
+    list_filter = ['terminal','created_date','status','filetype']
+    list_display = ('name','terminal','filetype','item_count','uploaded_count','description','created_date','status','upload_status','upload_date')
     list_editable = ()
     fieldsets = [
-        ('Basic Information',{'fields': ['name','filetype','filename','description','slug','status']}),
+        ('Basic Information',{'fields': ['name','terminal','filetype','filename','description','slug','status']}),
         ('Upload Information',{'fields': ['upload_status','upload_date','upload_msg']}),
     ]
     inlines=[Containerline]
@@ -99,11 +106,11 @@ admin.site.register(Shipper,ShipperAdmin)
 
 class BookingAdmin(admin.ModelAdmin):
     search_fields = ['number','voy','pod','shipper__name','vessel__name','line','description']
-    list_filter = ['line','agent','pod','shipper']
-    list_display = ('number','line','agent','voy','pod','shipper','vessel','description','created_date')
+    list_filter = ['terminal','line','agent','pod','shipper']
+    list_display = ('number','terminal','line','agent','voy','pod','shipper','vessel','origin','created_date')
     list_editable = ()
     fieldsets = [
-        ('Basic Information',{'fields': ['number','slug','line','agent','voy','pod','shipper','vessel','description','status','user']}),
+        ('Basic Information',{'fields': ['number','slug','terminal','origin','line','agent','voy','pod','shipper','vessel','description','status','user']}),
     ]
 admin.site.register(Booking,BookingAdmin)
 
@@ -136,3 +143,15 @@ class PortAdmin(admin.ModelAdmin):
         ('Basic Information',{'fields': ['name','new_port','status','description']}),
     ]
 admin.site.register(Port,PortAdmin)
+
+
+
+class OriginAdmin(admin.ModelAdmin):
+    search_fields = ['name','description']
+    list_filter = ['filetype']
+    list_display = ('name','filetype','description','created_date')
+    list_editable = ()
+    fieldsets = [
+        ('Basic Information',{'fields': ['name','filetype','description']}),
+    ]
+admin.site.register(Origin,OriginAdmin)

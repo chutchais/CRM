@@ -11,6 +11,15 @@ STATUS_CHOICES = (
 		(DEACTIVE, 'Deactive'),
 	)
 
+A0 ='A0'
+B1 ='B1'
+TERMINAL_CHOICES = (
+		(A0, 'A0-LCMT'),
+		(B1, 'B1-LCB1'),
+	)
+
+
+
 
 class FileType(models.Model):
 	name = models.CharField(max_length=50,primary_key=True)
@@ -63,6 +72,7 @@ class ShoreFile(models.Model):
 	year = models.IntegerField(blank=True,null=True)
 	month = models.IntegerField(blank=True,null=True)
 	day = models.IntegerField(blank=True,null=True)
+	terminal 	= models.CharField(max_length=3,choices=TERMINAL_CHOICES,blank=True, null=True)
 	
 	def __str__(self):
 		return self.name
@@ -119,19 +129,21 @@ class Shipper(models.Model):
 		return self.name
 
 class Booking(models.Model):
-	number = models.CharField(verbose_name ='Booking Number',max_length=50)
-	slug = models.SlugField(unique=True,blank=True, null=True)
-	voy = models.CharField(verbose_name ='Voyage',max_length=50,blank=True, null=True)
-	pod = models.CharField(verbose_name ='Port Of Destination',max_length=50,blank=True, null=True)
-	line = models.CharField(verbose_name ='Line',max_length=50,blank=True, null=True)
-	agent = models.CharField(verbose_name ='Agent',max_length=50,blank=True, null=True)
-	shipper  = models.ForeignKey('Shipper', related_name='bookings',blank=True, null=True)
-	vessel  = models.ForeignKey('Vessel', related_name='bookings')
+	number 		= models.CharField(verbose_name ='Booking Number',max_length=50)
+	slug 		= models.SlugField(unique=True,blank=True, null=True)
+	voy 		= models.CharField(verbose_name ='Voyage',max_length=50,blank=True, null=True)
+	pod 		= models.CharField(verbose_name ='Port Of Destination',max_length=50,blank=True, null=True)
+	line 		= models.CharField(verbose_name ='Line',max_length=50,blank=True, null=True)
+	agent 		= models.CharField(verbose_name ='Agent',max_length=50,blank=True, null=True)
+	shipper  	= models.ForeignKey('Shipper', related_name='bookings',blank=True, null=True)
+	vessel  	= models.ForeignKey('Vessel', related_name='bookings')
 	description = models.CharField(max_length=255,blank=True, null=True)
-	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
+	status 		= models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
+	user 		= models.ForeignKey('auth.User',blank=True,null=True)
+	terminal 	= models.CharField(max_length=3,choices=TERMINAL_CHOICES,blank=True, null=True)
+	origin 		= models.ForeignKey('Origin', related_name='bookings',blank=True, null=True)
 	
 	def __str__(self):
 		return self.number
@@ -292,3 +304,22 @@ class Port(models.Model):
 	
 	def __str__(self):
 		return self.name
+
+
+
+# For support N4 -Preadvise creator
+class Origin(models.Model):
+	name 			= models.CharField(verbose_name ='Origin',
+						max_length=50)
+	filetype 		= models.ForeignKey('FileType', 
+								related_name='origins'
+								,blank=True, null=True)
+	description 	= models.CharField(max_length=255,blank=True, null=True)
+	created_date 	= models.DateTimeField(auto_now_add=True)
+	modified_date 	= models.DateTimeField(blank=True, null=True,auto_now=True)
+	user 			= models.ForeignKey('auth.User',blank=True,null=True)
+	
+	def __str__(self):
+		return self.name
+
+

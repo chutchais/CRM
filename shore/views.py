@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 from .forms import UploadFileForm
-from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking,Port)
+from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking,Port,Origin)
 import django_excel as excel
 import xlrd
 import re
@@ -127,9 +127,18 @@ def confirm_data(request):
 					shipper,created = Shipper.objects.get_or_create(name=d['shipper'])
 				else:
 					shipper = None
+
+				# booking,created = Booking.objects.get_or_create(number=d['booking'],voy=d['voy'],pod=d['pod'],
+				# 	shipper=shipper,vessel=vessel,line=d['line'],agent=d['agent'])
+
 				booking,created = Booking.objects.get_or_create(number=d['booking'],voy=d['voy'],pod=d['pod'],
-					shipper=shipper,vessel=vessel,line=d['line'],agent=d['agent'])
+					shipper=shipper,vessel=vessel,line=d['line'],agent=d['agent'],
+					terminal = d['terminal'])
+
 				if created:
+					if d['origin'] != '' :
+						booking.origin =  Origin.objects.get(name=d['origin'])
+						booking.save()
 					print('Created new Booking')
 
 				line = d['line']
@@ -193,9 +202,16 @@ def delete_data(request):
 	return HttpResponseRedirect(reverse('upload'))
 
 def import_data(request):
+
+	terminalIn 	=	''
+	originIn 	= 	''
+
 	if request.method == "POST":
 		form = UploadFileForm(request.POST,
 		request.FILES)
+
+		terminalIn =''
+
 		if form.is_valid():
 			filehandle =request.FILES['file']
 			book = xlrd.open_workbook(file_contents=filehandle.read())
@@ -208,7 +224,12 @@ def import_data(request):
 
 			#Find First row in sheet
 			# get Shore File Type
-			fileTypeIn = form.cleaned_data['filetype']
+			fileTypeIn 	= form.cleaned_data['filetype']
+			terminalIn 	= form.cleaned_data['terminal']
+			originIn 	= form.cleaned_data['origin']
+			print (originIn)
+
+
 			obj = FileType.objects.get(name=fileTypeIn)
 			fobj = ShoreFile.objects.filter(name=filehandle)
 			if fobj.count() == 0:
@@ -484,11 +505,24 @@ def import_data(request):
 						else:
 							d['new'] ='No'
 							c['new'] ='No'
+
+						c['terminal'] = terminalIn
+						d['terminal'] = terminalIn
+
+						c['origin'] = originIn.name if originIn != None else ''
+						d['origin'] = originIn.name if originIn != None else ''
 						# 	print ('Exist Container %s (%s,%s)' % (vContainerData,objCurrVoy.booking.number,objCurrVoy.booking.voy))
 					else:
 						# print ('New Container %s' % vContainerData)
 						c['new'] ='Yes'
 						d['new'] ='Yes'
+
+						c['terminal'] = terminalIn
+						d['terminal'] = terminalIn
+						c['origin'] = originIn.name if originIn != None else ''
+						d['origin'] = originIn.name if originIn != None else ''
+
+
 						new_count+=1
 
 					# Check Container and Booking Exist.
@@ -757,7 +791,10 @@ def import_data(request):
 					# d['vgm'] ='TEXT'			
 
 			# Save to Shore File
-			instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
+			# instance = ShoreFile(name=fileInName,filetype=obj,filename=request.FILES['file'],status='D')
+			instance = ShoreFile(name=fileInName,filetype=obj,
+								filename=request.FILES['file'],status='D',
+								terminal = terminalIn)
 			instance.save()
 			vSlug = instance.slug
 			# print (dict_list)
@@ -784,7 +821,8 @@ def import_data(request):
 		'total' : item_count,
 		'new' : new_count,
 		'slug': vSlug,
-		'changes' :change_list
+		'changes' :change_list,
+		'terminal' : terminalIn
 		})
 
 
@@ -813,20 +851,32 @@ def export_booking_csv(request):
 	response['Content-Disposition'] = 'attachment; filename="%s.csv"' % sf.name
 
 	writer = csv.writer(response)
-	writer.writerow(['shipper_name','line','size','hight','type','unit',
+	writer.writerow(['terminal','shipper_code','shipper_name','line','size','hight','type','unit',
 						'vessel_code','vessel_name','voy_out','booking','spod','pod',
-						'temperature','imo','un','payment','vgm','status','iso','gross_weight','seal',
-						'stow','ow_hight','ow_left','ow_right','remark'])
+						'temperature','imo','un','payment','vgm','origin','status','iso','gross_weight','seal',
+						'stow','ow_hight','ow_left','ow_right','destination','category','frghtkind','remark'])
 
 	# users = User.objects.all().values_list('username', 'first_name', 'last_name', 'email')
 	# for user in users:
 	#     writer.writerow(user)
-	cons = sf.containers.all().values_list('booking__shipper__name','booking__line','container_size','container_high','container_type',
+	cons = sf.containers.all().values_list('booking__terminal','booking__shipper__name','booking__shipper__name','booking__line','container_size','container_high','container_type',
 							'number','booking__vessel__code','booking__vessel__name','booking__voy','booking__number',
-							'booking__pod','booking__pod','temperature','dg_class','unno','payment','vgm')
+							'booking__pod','booking__pod','temperature','dg_class','unno','payment','vgm','booking__origin__name')
 	for c in cons :
 		c = list(c)
-		c.append('F')
+		c.append('F') #Status
+		c.append('') #ISO
+		c.append('') #Gross Weight
+		c.append('') #Seal
+		c.append('') #stow
+		c.append('') #ow_hight
+		c.append('') #ow_left
+		c.append('') #ow_right
+		# c.append('') #Origin
+		c.append('') #destination
+		c.append('Export') #category
+		c.append('FCL') #frhtkind
+		c.append('') #remark
 		c = tuple(c)
 		print(c)
 		writer.writerow(c)
