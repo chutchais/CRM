@@ -851,21 +851,23 @@ def export_booking_csv(request):
 	response['Content-Disposition'] = 'attachment; filename="%s.csv"' % sf.name
 
 	writer = csv.writer(response)
-	writer.writerow(['terminal','shipper_code','shipper_name','line','size','hight','type','unit',
+	writer.writerow(['terminal','shipper_code','shipper_name','line','size','hight','type','iso','unit',
 						'vessel_code','vessel_name','voy_out','booking','spod','pod',
-						'temperature','imo','un','payment','vgm','origin','status','iso','gross_weight','seal',
+						'temperature','imo','un','payment','vgm','origin','status','gross_weight','seal',
 						'stow','ow_hight','ow_left','ow_right','destination','category','frghtkind','remark'])
 
 	# users = User.objects.all().values_list('username', 'first_name', 'last_name', 'email')
 	# for user in users:
 	#     writer.writerow(user)
-	cons = sf.containers.all().values_list('booking__terminal','booking__shipper__name','booking__shipper__name','booking__line','container_size','container_high','container_type',
+	cons = sf.containers.all().values_list('booking__terminal','booking__shipper__name','booking__shipper__name',
+							'booking__line','container_size','container_high','container_type','iso',
 							'number','booking__vessel__code','booking__vessel__name','booking__voy','booking__number',
-							'booking__pod','booking__pod','temperature','dg_class','unno','payment','vgm','booking__origin__name')
+							'booking__pod','booking__pod','temperature','dg_class','unno','payment','vgm',
+							'booking__origin__name')
 	for c in cons :
 		c = list(c)
 		c.append('F') #Status
-		c.append('') #ISO
+		# c.append('') #ISO
 		c.append('') #Gross Weight
 		c.append('') #Seal
 		c.append('') #stow

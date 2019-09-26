@@ -11,7 +11,8 @@ from .models import (FileType,
 					Container,
                     ContainerType,
                     Port,
-                    Origin)
+                    Origin,
+                    Iso)
 
 from datetime import date
 from django.utils.translation import gettext_lazy as _
@@ -119,11 +120,11 @@ admin.site.register(Booking,BookingAdmin)
 class ContainerAdmin(admin.ModelAdmin):
     search_fields = ['number','booking__number']
     list_filter = ['container_type','container_size']
-    list_display = ['number','booking','container_type','container_size','payment','dg_class','created_date','draft','upload_status']
+    list_display = ['number','booking','container_type','container_size','container_high','iso','payment','dg_class','created_date','draft','upload_status']
     list_editable = ()
     fieldsets = [
         ('Basic Information',{'fields': ['number','booking','description','slug']}),
-        ('Type',{'fields': ['container_type','container_size','dg_class','temperature']}),
+        ('Type',{'fields': ['container_type','container_size','container_high','iso','dg_class','temperature']}),
         ('Other',{'fields': ['payment','unno','status']}),
         ('Weight',{'fields': ['vgm',]}),
         ('Draft',{'fields': ['draft']}),
@@ -155,3 +156,14 @@ class OriginAdmin(admin.ModelAdmin):
         ('Basic Information',{'fields': ['name','filetype','description']}),
     ]
 admin.site.register(Origin,OriginAdmin)
+
+
+class IsoAdmin(admin.ModelAdmin):
+    search_fields = ['name','description']
+    list_filter = []
+    list_display = ('name','container_type','container_size','container_high','description','created_date')
+    list_editable = ()
+    fieldsets = [
+        ('Basic Information',{'fields': ['name','container_type','container_size','container_high','description']}),
+    ]
+admin.site.register(Iso,IsoAdmin)

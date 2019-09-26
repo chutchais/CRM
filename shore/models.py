@@ -170,6 +170,7 @@ class Container(models.Model):
 	upload_date = models.DateTimeField(blank=True, null=True)
 	upload_msg = models.CharField(max_length=255,blank=True, null=True)
 	shorefile  = models.ForeignKey('ShoreFile', related_name='containers',blank=True, null=True)
+	iso 		  = models.ForeignKey('Iso', related_name='containers',blank=True, null=True)
 	
 	def __str__(self):
 		return self.number
@@ -267,12 +268,25 @@ def create_container_slug(instance, new_slug=None):
 		return create_container_slug(instance, new_slug=new_slug)
 	return slug
 
+def get_or_none(classmodel, **kwargs):
+	try:
+		return classmodel.objects.get(**kwargs)
+	except classmodel.DoesNotExist:
+		return None
+		
 def pre_save_container_receiver(sender, instance, *args, **kwargs):
 	# print ('Presave Trigger')
 	#To support Save as Draft 
 	# instance.slug = create_shorefile_slug(instance)
 	if not instance.slug:
 		instance.slug = create_container_slug(instance)
+	# for update ISO data
+	if not instance.iso:
+		iso = get_or_none(Iso,	container_type = instance.container_type,
+								container_size = instance.container_size,
+								container_high = instance.container_high)
+		if iso:
+			instance.iso = iso
 
 pre_save.connect(pre_save_container_receiver, sender=Container)
 
@@ -322,4 +336,16 @@ class Origin(models.Model):
 	def __str__(self):
 		return self.name
 
-
+class Iso(models.Model):
+	name 			= models.CharField(primary_key=True,verbose_name ='ISO code',max_length=50)
+	container_type 	= models.CharField(max_length=10,default='DV')
+	container_size 	= models.CharField(max_length=10,blank=True, null=True ,default='20')
+	container_high 	= models.CharField(max_length=10,blank=True, null=True ,default='8.6')
+	description 	= models.CharField(max_length=255,blank=True, null=True)
+	status 			= models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
+	created_date 	= models.DateTimeField(auto_now_add=True)
+	modified_date 	= models.DateTimeField(blank=True, null=True,auto_now=True)
+	user 			= models.ForeignKey('auth.User',blank=True,null=True)
+	
+	def __str__(self):
+		return self.name
