@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 from .forms import UploadFileForm
-from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking,Port,Origin)
+from .models import (Container,FileType,ShoreFile,Vessel,Shipper,Booking,Port,Origin,ContainerType)
 import django_excel as excel
 import xlrd
 import re
@@ -562,6 +562,7 @@ def import_data(request):
 						d['term'] = obj.payment_default if obj.payment_default != None else ''
 
 
+					
 					# if obj.tsp_col != None or obj.tsp_col =='':
 					# 	# print ('Using new POD from %s to %s' % (d['term'], d['tsp']))
 					# 	if d['tsp'] != 'None':
@@ -655,7 +656,10 @@ def import_data(request):
 						else:
 							d['term'] = 'N'
 
+						# --End MSC--
 
+
+					
 					
 
 					# Modify data
@@ -741,15 +745,18 @@ def import_data(request):
 						d['type'] = 'RE'
 						d['size'] = '40'
 
-					# if d['type']=='20DV':
-					# 	d['high'] = '9.6'
-					# 	d['type'] = 'RE'
-					# 	d['size'] = '40'
-
 					if d['type'].upper() == '20GP':
 						d['high'] = '8.6'
 						d['type'] = 'DV'
 						d['size'] = '20'
+
+					# Added on Oct 21,2019 -- To support convert Type
+					ct = ContainerType.objects.filter(name=d['type']).first()
+					if ct :
+						print ('Found Container type : %s' % d['type'])
+						d['type'] = ct.ctype
+						d['high'] = ct.cHigh
+						d['size'] = ct.csize
 
 
 					# Add by Chutchai on Nov 22,2017
