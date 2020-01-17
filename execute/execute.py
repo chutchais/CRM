@@ -145,7 +145,7 @@ def main():
 
     try:
         # Get Pending Shore file details from API
-        print (Fore.GREEN + ('-Retrive shore file from API' ), file=stream)
+        print (Fore.GREEN + ('-Retrive shore file from API : %s' % url ), file=stream)
         shoreAPI = get_pending_shorefile ('shorefile','A')
         if len(shoreAPI) ==0:
             print (Fore.RED + ('-Not found any pending shore file' ), file=stream)
@@ -363,6 +363,14 @@ def main():
                 agent = c['booking']['agent']
                 pterm= c['payment']
 
+                # Added by Chutchai on Nov 19,2019
+                # To record iso to database
+                if c['iso']:
+                	iso = c['iso']
+                else:
+                	iso =''
+               	# ----------------------------
+
                 if dg_class==None:
                     dg_class = ''
                 if unno==None:
@@ -417,7 +425,7 @@ def main():
                 booking_id = c['booking']['id']
 
                 vContainerCreateSuccess,vMsg = ctcs_create_container(vBookingCreated,container,shipper,vessel_code,voy,new_pod, \
-                            pterm,container_long,container_high,container_type,booking_id,dg_class,unno,temperature,c['slug'])
+                            pterm,container_long,container_high,container_type,booking_id,dg_class,unno,temperature,c['slug'],iso)
                 vBookingCreated = False #Next container will be put only Conatainer
 
                 filelog.write('Create container : %s - %s - %s \n' % (booking,container,vMsg))
@@ -530,7 +538,7 @@ def ctcs_create_booking(booking,line,agent,vBookingMode,ContainerSuccess):
 
 
 def ctcs_create_container(vContainerMode ,container,shipper,vessel_code, \
-                        voy,pod,cash,lg,hg,ctype,booking_id,dg_class,unno,temperature,slug):
+                        voy,pod,cash,lg,hg,ctype,booking_id,dg_class,unno,temperature,slug,iso):
 
     filename="images/container.png"
 # Finding Location of OCR command
@@ -559,7 +567,15 @@ def ctcs_create_container(vContainerMode ,container,shipper,vessel_code, \
     pyautogui.press('tab')
     pyautogui.press('tab')
     pyautogui.press('tab')
-    pyautogui.press('tab')
+
+    # Added by Chutchai ,on Nov 19,2019
+    # To add ISO on container info
+    if iso != '' and len(iso) == 4 :
+    # 'ISO'
+    	pyautogui.typewrite(iso, interval=secs_between_keys) #Container Height
+    else :
+    	pyautogui.press('tab')#No tab
+
     pyautogui.press('down')
 
     if vContainerMode : #Add new mode
