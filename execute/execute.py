@@ -611,7 +611,9 @@ def ctcs_create_container(vContainerMode ,container,shipper,vessel_code, \
 		if container[:1] == 'Z' :
 			pyautogui.typewrite('ZM', interval=secs_between_keys)
 		else :
-			pyautogui.press('down')
+			# Modify on Jan 27,2020 , To Clear Stowage Indicator to blank
+			pyautogui.typewrite('  ', interval=secs_between_keys)
+			# pyautogui.press('down')
 			
 		#Stowage Remark 
 		pyautogui.press('down')
