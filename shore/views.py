@@ -886,8 +886,17 @@ def export_booking_csv(request):
 		c.append('Export') #category
 		c.append('FCL') #frhtkind
 		c.append('') #remark
+		# SPOD
+		# c[13]= '%s%s' % (c[13][-2:],c[13][0:3])
+		# POD
+		c[14]= '%s%s' % (c[14][-2:],c[14][0:3])
+		c[13]=c[14]
+		# Vgm (19),Gross(22)
+		c[22] = c[19]
 		c = tuple(c)
 		print(c)
+		# Modify POD
+
 		writer.writerow(c)
 
 	return response

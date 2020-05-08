@@ -159,7 +159,7 @@ class Container(models.Model):
 	payment = models.CharField(verbose_name ='Payment(Cash)',max_length=10,blank=True, null=True ,default='CASH')
 	dg_class =  models.CharField(max_length=10,blank=True, null=True)
 	unno =  models.CharField(max_length=20,blank=True, null=True)
-	temperature = models.FloatField(default=20)
+	temperature = models.FloatField(blank=True, null=True)
 	vgm = models.IntegerField(default=0)
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
