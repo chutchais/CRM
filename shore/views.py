@@ -418,6 +418,12 @@ def import_data(request):
 				vVoyData = xl_sheet.cell(row_index, Voy_index).value.__str__().strip()
 				vPodData = xl_sheet.cell(row_index, Pod_index).value.__str__().strip()
 				vVesselData = xl_sheet.cell(row_index, Vessel_index).value.__str__().strip()
+
+				# Added by Chutchai on June 30,2020
+				# To check diff of Payment
+				# CASH or CRADIT
+				vPaymentTermData = xl_sheet.cell(row_index, ContTerm_index).value.__str__().strip()
+
 				# print (vVesselData)
 				if ContTsp_index != None:
 					vTspData = xl_sheet.cell(row_index, ContTsp_index).value.__str__().strip()
@@ -477,13 +483,18 @@ def import_data(request):
 					from datetime import date, timedelta
 					d7=date.today()-timedelta(days=14)
 					objContVoy = Container.objects.filter(number=vContainerData,created_date__gte=d7)
+					
+
 
 					if objContVoy :
 						objCurrVoy = objContVoy.last()
+						# print(objCurrVoy.payment,vPaymentTermData)
+						vPaymentTermData = 'Y' if vPaymentTermData == 'CASH' else 'N'
 						if (objCurrVoy.booking.number != vBooingData or 
 							objCurrVoy.booking.pod != vPodData or 
 							objCurrVoy.booking.vessel.name != vVesselData or 
-							objCurrVoy.booking.voy != vVoyData) :
+							objCurrVoy.booking.voy != vVoyData or 
+							objCurrVoy.payment != vPaymentTermData ):
 
 							d['new'] ='Yes'
 							c['new'] ='Yes'
@@ -497,6 +508,9 @@ def import_data(request):
 							if objCurrVoy.booking.voy != vVoyData :
 								# print(vVoyData)
 								c['voy'] = '%s  (old: %s)' % (vVoyData,objCurrVoy.booking.voy)
+
+							if objCurrVoy.payment != vPaymentTermData :
+								c['term'] = '%s  (old: %s)' % (vPaymentTermData,objCurrVoy.payment)
 
 
 							change_list.append(c)
