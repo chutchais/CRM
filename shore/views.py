@@ -422,8 +422,8 @@ def import_data(request):
 				# Added by Chutchai on June 30,2020
 				# To check diff of Payment
 				# CASH or CRADIT
-				vPaymentTermData = xl_sheet.cell(row_index, ContTerm_index).value.__str__().strip()
-
+				if not ContTerm_index == None :
+					vPaymentTermData = xl_sheet.cell(row_index, ContTerm_index).value.__str__().strip()
 				# print (vVesselData)
 				if ContTsp_index != None:
 					vTspData = xl_sheet.cell(row_index, ContTsp_index).value.__str__().strip()
