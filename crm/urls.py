@@ -19,19 +19,31 @@ Including another URLconf
 # from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
-from django.conf.urls import include, url
+# from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.conf import settings
 
+from django.urls import include, path
+
+# urlpatterns = [
+#     url(r'^admin/', admin.site.urls),
+#     url(r'^shore/', include('shore.urls')),
+#     url(r'api/booking/', include("booking.api.urls", namespace='booking-api')),
+#     # url(r'api/booking/', include("shore.api.urls", namespace='booking-api')),
+#     url(r'api/shipper/', include("shipper.api.urls", namespace='shipper-api')),
+#     url(r'api/vessel/', include("vessel.api.urls", namespace='vessel-api')),
+#     url(r'api/container/', include("container.api.urls", namespace='container-api')),
+#     url(r'api/shorefile/', include("shorefile.api.urls", namespace='shorefile-api')),
+# ]
+
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^shore/', include('shore.urls')),
-    url(r'api/booking/', include("booking.api.urls", namespace='booking-api')),
-    # url(r'api/booking/', include("shore.api.urls", namespace='booking-api')),
-    url(r'api/shipper/', include("shipper.api.urls", namespace='shipper-api')),
-    url(r'api/vessel/', include("vessel.api.urls", namespace='vessel-api')),
-    url(r'api/container/', include("container.api.urls", namespace='container-api')),
-    url(r'api/shorefile/', include("shorefile.api.urls", namespace='shorefile-api')),
+    path('admin/', admin.site.urls),
+    path('shore/', include('shore.urls')),
+    path('api/booking/', include(('booking.api.urls','booking-api'), namespace='booking-api')),
+    path('api/shipper/', include(('shipper.api.urls','shipper-api'), namespace='shipper-api')),
+    path('api/vessel/', include(('vessel.api.urls','vessel-api'), namespace='vessel-api')),
+    path('api/container/', include(('container.api.urls','container-api'), namespace='container-api')),
+    path('api/shorefile/', include(('shorefile.api.urls','shorefile-api'), namespace='shorefile-api')),
 ]
 
 if settings.DEBUG:

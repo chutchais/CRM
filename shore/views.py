@@ -1,6 +1,8 @@
-from django.shortcuts import render,render_to_response
+from django.shortcuts import render
+# ,render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 from .forms import UploadFileForm

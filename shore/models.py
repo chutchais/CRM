@@ -49,7 +49,7 @@ class FileType(models.Model):
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
+	user = models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name
@@ -59,14 +59,15 @@ class FileType(models.Model):
 class ShoreFile(models.Model):
 	name = models.CharField(max_length=100,primary_key=True)
 	filename = models.FileField(upload_to='shores/%Y/%m/%d/',blank=True, null=True)
-	filetype =  models.ForeignKey('FileType', related_name='shorefiles',blank=True, null=True)
+	filetype =  models.ForeignKey('FileType', related_name='shorefiles',
+					blank=True, null=True,on_delete=models.SET_NULL)
 	slug = models.SlugField(unique=True,blank=True, null=True)
 	description = models.CharField(max_length=255,blank=True, null=True)
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=DEACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
-	upload_status = models.NullBooleanField(verbose_name ='Upload Status')
+	user = models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
+	upload_status = models.BooleanField(null=True,verbose_name ='Upload Status')
 	upload_date = models.DateTimeField(blank=True, null=True)
 	upload_msg = models.CharField(max_length=255,blank=True, null=True)
 	year = models.IntegerField(blank=True,null=True)
@@ -110,7 +111,7 @@ class Vessel(models.Model):
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
+	user = models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name
@@ -123,7 +124,7 @@ class Shipper(models.Model):
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
+	user = models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name
@@ -135,15 +136,16 @@ class Booking(models.Model):
 	pod 		= models.CharField(verbose_name ='Port Of Destination',max_length=50,blank=True, null=True)
 	line 		= models.CharField(verbose_name ='Line',max_length=50,blank=True, null=True)
 	agent 		= models.CharField(verbose_name ='Agent',max_length=50,blank=True, null=True)
-	shipper  	= models.ForeignKey('Shipper', related_name='bookings',blank=True, null=True)
-	vessel  	= models.ForeignKey('Vessel', related_name='bookings')
+	shipper  	= models.ForeignKey('Shipper', related_name='bookings',
+				blank=True, null=True,on_delete=models.SET_NULL)
+	vessel  	= models.ForeignKey('Vessel', related_name='bookings',on_delete=models.CASCADE)
 	description = models.CharField(max_length=255,blank=True, null=True)
 	status 		= models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user 		= models.ForeignKey('auth.User',blank=True,null=True)
+	user 		= models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	terminal 	= models.CharField(max_length=3,choices=TERMINAL_CHOICES,blank=True, null=True)
-	origin 		= models.ForeignKey('Origin', related_name='bookings',blank=True, null=True)
+	origin 		= models.ForeignKey('Origin', related_name='bookings',blank=True, null=True,on_delete=models.CASCADE)
 	
 	def __str__(self):
 		return self.number
@@ -151,7 +153,7 @@ class Booking(models.Model):
 class Container(models.Model):
 	number = models.CharField(max_length=50,blank=False, null=False)
 	slug = models.SlugField(unique=True,blank=True, null=True)
-	booking  = models.ForeignKey('Booking', related_name='containers')
+	booking  = models.ForeignKey('Booking', related_name='containers',on_delete=models.CASCADE)
 	container_type = models.CharField(max_length=10,default='DV')
 	container_size = models.CharField(max_length=10,blank=True, null=True ,default='20')
 	container_high = models.CharField(max_length=10,blank=True, null=True ,default='8.6')
@@ -164,13 +166,13 @@ class Container(models.Model):
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
+	user = models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	draft = models.BooleanField(verbose_name ='Save as draft',default=False)
-	upload_status = models.NullBooleanField(verbose_name ='Upload Success')
+	upload_status = models.BooleanField(null=True,verbose_name ='Upload Success')
 	upload_date = models.DateTimeField(blank=True, null=True)
 	upload_msg = models.CharField(max_length=255,blank=True, null=True)
-	shorefile  = models.ForeignKey('ShoreFile', related_name='containers',blank=True, null=True)
-	iso 		  = models.ForeignKey('Iso', related_name='containers',blank=True, null=True)
+	shorefile  = models.ForeignKey('ShoreFile', related_name='containers',blank=True, null=True,on_delete=models.CASCADE)
+	iso 		  = models.ForeignKey('Iso', related_name='containers',blank=True, null=True,on_delete=models.CASCADE)
 	
 	def __str__(self):
 		return self.number
@@ -300,7 +302,7 @@ class ContainerType(models.Model):
 	status = models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(blank=True, null=True,auto_now=True)
-	user = models.ForeignKey('auth.User',blank=True,null=True)
+	user = models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name
@@ -314,7 +316,7 @@ class Port(models.Model):
 	status 			= models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date 	= models.DateTimeField(auto_now_add=True)
 	modified_date 	= models.DateTimeField(blank=True, null=True,auto_now=True)
-	user 			= models.ForeignKey('auth.User',blank=True,null=True)
+	user 			= models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name
@@ -327,11 +329,11 @@ class Origin(models.Model):
 						max_length=50)
 	filetype 		= models.ForeignKey('FileType', 
 								related_name='origins'
-								,blank=True, null=True)
+								,blank=True, null=True,on_delete=models.SET_NULL)
 	description 	= models.CharField(max_length=255,blank=True, null=True)
 	created_date 	= models.DateTimeField(auto_now_add=True)
 	modified_date 	= models.DateTimeField(blank=True, null=True,auto_now=True)
-	user 			= models.ForeignKey('auth.User',blank=True,null=True)
+	user 			= models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name
@@ -345,7 +347,7 @@ class Iso(models.Model):
 	status 			= models.CharField(max_length=1,choices=STATUS_CHOICES,default=ACTIVE)
 	created_date 	= models.DateTimeField(auto_now_add=True)
 	modified_date 	= models.DateTimeField(blank=True, null=True,auto_now=True)
-	user 			= models.ForeignKey('auth.User',blank=True,null=True)
+	user 			= models.ForeignKey('auth.User',blank=True,null=True,on_delete=models.SET_NULL)
 	
 	def __str__(self):
 		return self.name

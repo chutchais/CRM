@@ -1,0 +1,23 @@
+crcmod
+django-colorfield
+django-cors-headers
+django-excel
+django-filter
+djangorestframework
+lml
+Markdown
+# Pillow==5.0.0
+# psycopg2==2.7.1
+pyexcel
+# pyexcel-io==0.5.0
+# pyexcel-webio==0.1.2
+pypng
+# PyQRCode==1.2.1
+# python-barcode==0.10.0
+pytz
+pyzbar
+texttable
+urllib3
+waitressdir
+xlrd
+django
