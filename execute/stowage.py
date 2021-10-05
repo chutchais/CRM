@@ -13,6 +13,10 @@ from PIL import Image
 import pytesseract
 import cv2
 
+# Added  on Oct 5,2021
+import redis
+db = redis.StrictRedis('10.24.50.96', 6379,db=7, charset="utf-8", decode_responses=True) #Auto Berth Production
+
 url = 'http://192.168.10.20:8004/api'
 # url = 'http://127.0.0.1:8000/api'
 x = 0
@@ -141,6 +145,15 @@ an optional message """
             return True
 
 
+def container_executed(booking,container):
+    key = f'{booking}:{container}'
+    return True if db.get(key) else False
+
+def save_container(booking,container):
+    key = f'{booking}:{container}'
+    db.set(key,0)
+    ttl = 60*60*24*7 #7 days
+    db.expire(key, ttl)
 
 def main():
     import json
@@ -373,15 +386,20 @@ def main():
 def enter_booking_container_stwage(booking,container,stowage):
     print (f'Process data {booking}/{container}/{stowage}.....start')
     if is_valid_container(container):
-        # Check container is processed.
-        enter_booking_container_list (booking)
-        enter_container(container)
-        enter_stowage(stowage)
-        print (f'Process data {booking}/{container}/{stowage}.....finish')
-        time.sleep(1)
+        if container_executed(booking,container) : #check on Redis to verify Is it excuted.?
+            print (f'{booking}/{container}......already excuted ..SKIP')
+        else :
+            # Check container is processed.
+            enter_booking_container_list (booking)
+            enter_container(container)
+            enter_stowage(stowage)
+            print (f'Process data {booking}/{container}/{stowage}.....finished')
+            # Save to redis
+            save_container(booking,container)
+            time.sleep(1)
         # Save to Database.
     else:
-        print (f'Process data {booking}/{container}/{stowage}.....Invalid container SKIP..')
+        print (f'Process data {booking}/{container}/{stowage}.....Invalid container number SKIP..')
 
 def is_valid_container(container) :
     import re
@@ -431,6 +449,8 @@ def enter_stowage(stowage):
     from datetime import datetime
     now = datetime.now()
     seq= now.strftime('%H%M%S')[-5:]
+    seq = f'9{seq[1:]}' if seq[:1]=='0' else seq #To replace 0 with 9 ,in first digit
+    
     pyautogui.typewrite(seq, interval=secs_between_keys)
     pyautogui.press('enter',3)
 
