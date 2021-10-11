@@ -505,6 +505,8 @@ def enter_stowage(stowage,spod=''):
             pyautogui.press('down',spod_ix)
         pyautogui.typewrite('1', interval=secs_between_keys)
         pyautogui.press('enter',1) 
+        pyautogui.press('enter',1)
+        # Added on Oct 11,2021 -- Add more enter
         pyautogui.press('enter',1) 
 
 def get_spod_index(spod):
