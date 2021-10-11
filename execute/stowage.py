@@ -145,7 +145,10 @@ an optional message """
             return True
 
 
-def container_executed(booking,container):
+def container_executed(booking,container,skip=False):
+    # Added on Oct 8,2021 --- To support SKIP checking excecuted.
+    if skip :
+        return False
     key = f'{booking}:{container}'
     return True if db.get(key) else False
 
@@ -164,12 +167,24 @@ def main():
     init(wrap=False)
     stream = AnsiToWin32(sys.stderr).stream
 
+
+
     try:
-        ldir = tempfile.mkdtemp()
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-d', '--directory', default=ldir)
-        args = parser.parse_args()
-        tmpDir = args.directory
+
+        # Added on Oct 8,2021 -- To support SKIP verify execute mode.
+        n = len(sys.argv)
+        skip_mode = False
+        if n > 1 :
+            skip_mode = True if sys.argv[1]=='skip' else False 
+        if skip_mode :
+            print (Fore.RED + 'Running on SKIP verify executed mode........', file=stream)
+            # print (f'Running on SKIP mode')
+
+        # ldir = tempfile.mkdtemp()
+        # parser = argparse.ArgumentParser()
+        # parser.add_argument('-d', '--directory', default=ldir)
+        # args = parser.parse_args()
+        # tmpDir = args.directory
         # print (tmpDir)
 
         fname = 'vgm_setting.json'
@@ -247,11 +262,11 @@ def main():
         h_status_capture = h2
         # print (xx,yy,ww,hh)
         # print (x_status_capture,y_status_capture,w_status_capture,h_status_capture)
-        filename_check='images/vgm_status.png'
-        im = pyautogui.screenshot(filename_check,region=(x_status_capture,y_status_capture,w_status_capture,h_status_capture))
-        text = pytesseract.image_to_string(Image.open(filename_check), \
-                    config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
-        print ('Reading Status value : %s' % text)
+        # filename_check='images/vgm_status.png'
+        # im = pyautogui.screenshot(filename_check,region=(x_status_capture,y_status_capture,w_status_capture,h_status_capture))
+        # text = pytesseract.image_to_string(Image.open(filename_check), \
+        #             config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
+        # print ('Reading Status value : %s' % text)
 
         # sys.exit()
         # -------------------------------------------------------------
@@ -277,10 +292,10 @@ def main():
 
 
 
-        im = pyautogui.screenshot(filename,region=(x_capture,y_capture,w_capture,h_capture))
-        text = pytesseract.image_to_string(Image.open(filename), \
-                    config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
-        print ('Reading value : %s' % text)
+        # im = pyautogui.screenshot(filename,region=(x_capture,y_capture,w_capture,h_capture))
+        # text = pytesseract.image_to_string(Image.open(filename), \
+        #             config="--psm 6 --eom 3 -c tessedit_char_whitelist=-01234567890yXYZ:")
+        # print ('Reading value : %s' % text)
 
        
         #  Initial -Setup
@@ -337,7 +352,19 @@ def main():
                         booking = row[1].value.__str__().strip()
                         container = row[2].value.__str__().strip()
                         stowage = row[15].value.__str__().strip()
-                        enter_booking_container_stwage(booking,container,stowage)
+
+                        # Added on Oct 8,2021 -- To support SPOD
+                        # For text file 100% to enter SPOD
+                        spod = ''
+                        discharge_port = row[8].value.__str__().strip()
+                        if 'TPP' in  discharge_port :
+                            spod = 'TPP'
+                        
+                        if 'SIN' in  discharge_port :
+                            spod = 'SIN'
+
+
+                        enter_booking_container_stwage(booking,container,stowage,spod,skip_mode)
                         # sys.exit()
                         # continue
                 # Delete file
@@ -361,10 +388,16 @@ def main():
                         continue
                     booking     = line_array[6]
                     stowage     = line_array[12][-2:]
+
+                    # Added on Oct 8,2021 -- To support SPOD
+                    # For text file 100% to enter SPOD
+                    spod = line_array[12].strip()
+
+
                     if stowage == '' :
                         continue
                     # Start to process stowage
-                    enter_booking_container_stwage(booking,container,stowage)
+                    enter_booking_container_stwage(booking,container,stowage,spod,skip_mode)
                     # sys.exit()
                 # Delete file
                 delete_file (stowage_file)
@@ -380,19 +413,19 @@ def main():
         else:
             print(e)
         print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
-        f = open(tmpDir + "log.txt", "w")
-        f.write(traceback.format_exc())
 
-def enter_booking_container_stwage(booking,container,stowage):
+
+def enter_booking_container_stwage(booking,container,stowage,spod='',skip=False):
     print (f'Process data {booking}/{container}/{stowage}.....start')
     if is_valid_container(container):
-        if container_executed(booking,container) : #check on Redis to verify Is it excuted.?
+        if container_executed(booking,container,skip) : #check on Redis to verify Is it excuted.?
             print (f'{booking}/{container}......already excuted ..SKIP')
         else :
             # Check container is processed.
             enter_booking_container_list (booking)
             enter_container(container)
-            enter_stowage(stowage)
+            # Added on Oct 8,2021 -- To support SPOD
+            enter_stowage(stowage,spod)
             print (f'Process data {booking}/{container}/{stowage}.....finished')
             # Save to redis
             save_container(booking,container)
@@ -435,7 +468,10 @@ def enter_container(container):
     pyautogui.press('enter')
 
 # Added on Oct 4.2021 -- TO support Stowage file
-def enter_stowage(stowage):
+def enter_stowage(stowage,spod=''):
+    # SPOD is full name like TP1,TP2,SG1,SG2,TPP,SIN
+    # Need to find index (COSMOS)
+    
     secs_between_keys=0.01
     pyautogui.press('down',7)
     pyautogui.press('delete',2)
@@ -452,7 +488,46 @@ def enter_stowage(stowage):
     seq = f'9{seq[1:]}' if seq[:1]=='0' else seq #To replace 0 with 9 ,in first digit
     
     pyautogui.typewrite(seq, interval=secs_between_keys)
-    pyautogui.press('enter',3)
+    # Added on Oct 9,2021 -- To support SPOD
+    if spod=='' :
+        pyautogui.press('enter',3)
+    else:
+        # To enter spod , on SPOD window
+        # Now after enter 5 digit for Seq ,cursor will move to OUT/IN 
+        pyautogui.press('down',7) #to POD
+        pyautogui.press('tab',1)    #To SPOD
+        pyautogui.press('delete',2) #Delete SPOD
+        pyautogui.press('enter',1)  #Open SPOD window
+        # Select SPOD.
+        # Find index of SPOD
+        spod_ix = get_spod_index(spod)
+        if spod_ix > 0 :
+            pyautogui.press('down',spod_ix)
+        pyautogui.typewrite('1', interval=secs_between_keys)
+        pyautogui.press('enter',1) 
+        pyautogui.press('enter',1) 
+
+def get_spod_index(spod):
+    # return Zero based
+    if spod == 'SG1':
+        return 0
+    if spod == 'SG2':
+        return 1
+    if spod == 'SIN':
+        return 2
+
+    if spod == 'TPP':
+        return 0
+    if spod == 'TP1':
+        return 1
+    if spod == 'TP2':
+        return 2 
+    if spod == 'TP3':
+        return 3
+    if spod == 'TP4':
+        return 4
+    
+    return 0 #default
 
 
 def enter_vgm(liner,vgm):
