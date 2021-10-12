@@ -401,6 +401,7 @@ def main():
                     # except spod
                     if spod in ['NW2'] :
                         spod = ''
+                        stowage = 'N2'
 
                     # Start to process stowage
                     enter_booking_container_stwage(booking,container,stowage,spod,skip_mode)
