@@ -396,6 +396,12 @@ def main():
 
                     if stowage == '' :
                         continue
+
+                    # Added on Oct 12,2021 -- To support USNWKTM , no need to put spod
+                    # except spod
+                    if spod in ['NW2'] :
+                        spod = ''
+
                     # Start to process stowage
                     enter_booking_container_stwage(booking,container,stowage,spod,skip_mode)
                     # sys.exit()
