@@ -426,7 +426,8 @@ def main():
 
                 # Added on Oct 11,2021 -- To support SPOD
                 is_spod = False
-                if 'SIN' in new_pod or 'TPP' in new_pod :
+                # Modify on Nov 29,2021 -- To support NWK
+                if 'SIN' in new_pod or 'TPP' in new_pod or 'NWK' in new_pod :
                     # vessel_code = vessel_code
                     # voy = voy
                     # Check Is it spod configured?
@@ -678,7 +679,13 @@ def ctcs_create_container(vContainerMode ,container,shipper,vessel_code, \
         pyautogui.press('enter',1)  #Open SPOD window
         # Select SPOD.
         # Find index of SPOD
-        spod = 'TPP' if 'TPP' in pod else 'SIN'
+        # spod = 'TPP' if 'TPP' in pod else 'SIN'
+        if 'TPP' in pod :
+            spod = 'TPP'
+        if 'SIN' in pod :
+            spod = 'SIN'
+        if 'NWK' in pod :
+            spod = 'NWK'
         spod_ix = get_spod_index(spod)
         if spod_ix > 0 :
             pyautogui.press('down',spod_ix)
@@ -770,6 +777,12 @@ def get_spod_index(spod):
         return 3
     if spod == 'TP4':
         return 4
+    
+    # Added on Nov 29,2021 -- To support new POD
+    if spod == 'NWK':
+        return 0
+    if spod == 'NW2':
+        return 1
     
     return 0 #default
 

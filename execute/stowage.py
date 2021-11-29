@@ -362,6 +362,10 @@ def main():
                         
                         if 'SIN' in  discharge_port :
                             spod = 'SIN'
+                        
+                        # Added on Nov 25,2021 -- Support new SPOD
+                        if 'NWK' in  discharge_port :
+                            spod = 'NWK'
 
 
                         enter_booking_container_stwage(booking,container,stowage,spod,skip_mode)
@@ -400,7 +404,7 @@ def main():
                     # Added on Oct 12,2021 -- To support USNWKTM , no need to put spod
                     # except spod
                     if spod in ['NW2'] :
-                        spod = ''
+                        # spod = '' #Comment on Nov 25,2021 -- TO enable SPOD for NWK
                         stowage = 'N2'
 
                     # Start to process stowage
@@ -535,6 +539,12 @@ def get_spod_index(spod):
         return 3
     if spod == 'TP4':
         return 4
+    
+    # Added on Nov 25,2021 -- To support new POD
+    if spod == 'NWK':
+        return 0
+    if spod == 'NW2':
+        return 1
     
     return 0 #default
 
